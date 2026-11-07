@@ -1,13 +1,17 @@
 const db = require("./_lib/turso");
 const session = require("./_lib/session");
 const limits = require("./_lib/limits");
+const protect = require("./_lib/protect");
 const { route, send, body, HttpError } = require("./_lib/http");
 
 const isColor = (c) => Number.isInteger(c) && c >= 0 && c <= 0xFFFFFF;
 
-module.exports = route(["POST"], async (req, res) => {
-  const s = await session.require(req);
+module.exports = route(["GET", "POST"], async (req, res) => {
+  // Protect (modération) partage cette fonction : la formule Hobby de Vercel est limitée à 12 fonctions.
+  if (req.method === "GET") return protect.get(req, res);
   const b = body(req);
+  if (b.scope === "protect") return protect.post(req, res, b);
+  const s = await session.require(req);
   session.manageOf(s, b.guild);
   const gid = db.int(b.guild);
   const stmts = [];
