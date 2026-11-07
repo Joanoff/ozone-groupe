@@ -292,6 +292,8 @@
     panel: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/>',
     updown: '<path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/>',
     back: '<path d="m15 18-6-6 6-6"/>',
+    menu: '<path d="M4 6h16M4 12h16M4 18h16"/>',
+    x: '<path d="M18 6 6 18M6 6l12 12"/>',
     protect: '<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/>',
     embed: '<rect width="18" height="7" x="3" y="3" rx="1"/><rect width="9" height="7" x="3" y="14" rx="1"/><rect width="5" height="7" x="16" y="14" rx="1"/>',
     eye: '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>'
@@ -306,6 +308,25 @@
   var mobileQ = window.matchMedia("(max-width: 960px)");
   var collapsed = false;
   try { collapsed = localStorage.getItem("ozone_side") === "1"; } catch (e) { /* stockage indisponible */ }
+
+  // Menu mobile (tiroir) : ouvre / ferme, synchronise la classe sur le conteneur, la barre et le bouton hamburger.
+  function setNav(open) {
+    var sh = document.querySelector(".dash-shell");
+    if (!sh) return;
+    open = !!open && mobileQ.matches;
+    sh.classList.toggle("nav-open", open);
+    var sd = sh.querySelector(".dash-side"); if (sd) sd.classList.toggle("open", open);
+    var b = document.getElementById("dashBurger"); if (b) b.setAttribute("aria-expanded", String(open));
+    if (open && sd) { var f = sd.querySelector(".dash-navbtn[aria-current='page']") || sd.querySelector(".dash-navbtn"); if (f) { f.focus({ preventScroll: true }); f.scrollIntoView({ block: "nearest" }); } }
+    else if (!open && b && document.activeElement && sd && sd.contains(document.activeElement)) b.focus({ preventScroll: true });
+  }
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") setNav(false); });
+  (mobileQ.addEventListener ? mobileQ.addEventListener.bind(mobileQ, "change") : mobileQ.addListener.bind(mobileQ))(function () {
+    var sh = document.querySelector(".dash-shell");
+    if (!sh) return;
+    setNav(false);
+    sh.classList.toggle("collapsed", collapsed && !mobileQ.matches);
+  });
 
   function sidebar() {
     var g = state.guild, u = state.me.user;
@@ -346,7 +367,7 @@
         onclick: function () {
           if (state.tab === key) return;
           state.tab = key; history.pushState(null, "", pathFor(state.guild, key));
-          if (mobileQ.matches) side.classList.remove("open");
+          setNav(false);
           renderGuild();
         }
       }, icon(IC[key]), h("span", { class: "lbl", text: label }));
@@ -359,17 +380,17 @@
     navFor(g.manage).forEach(function (grp) {
       nav.appendChild(group(grp[0], grp[1].map(function (e) { return [e[0], e[1], tabBtn(e[0], e[1])]; })));
     });
-    nav.appendChild(group("Compte", [
-      ["swap", "Changer de serveur", actionBtn("swap", "Changer de serveur", renderGuilds)],
-      ["logout", "Se déconnecter", actionBtn("logout", "Se déconnecter", function (ev) {
+    // Compte : épinglé en bas du menu (hors de la zone qui défile) pour rester toujours visible
+    var account = h("div", { class: "dash-account" },
+      actionBtn("swap", "Changer de serveur", renderGuilds),
+      actionBtn("logout", "Se déconnecter", function (ev) {
         busy(ev.currentTarget, function () { return api("/api/auth/logout", {}); }).then(function () { renderLogin(); }, fail);
-      }, true)]
-    ].map(function (e) { return [e[0], e[1], e[2]]; }), true));
+      }, true));
 
     var toggle = h("button", {
       class: "dash-toggle", type: "button", "aria-label": "Réduire ou ouvrir le menu", title: "Réduire le menu",
       onclick: function () {
-        if (mobileQ.matches) { side.classList.toggle("open"); return; }
+        if (mobileQ.matches) { setNav(false); return; }
         collapsed = !collapsed;
         shell().classList.toggle("collapsed", collapsed);
         try { localStorage.setItem("ozone_side", collapsed ? "1" : "0"); } catch (e) { /* ignoré */ }
@@ -377,17 +398,20 @@
     }, icon(IC.panel));
 
     var pill = h("div", { class: "dash-online unknown", id: "dashOnline" }, h("span", { class: "dot" }), h("span", { class: "t", text: "Player 1" }));
-    var side = h("aside", { class: "dash-side" },
-      h("a", { class: "dash-brand", href: "/", "aria-label": "Ozone Groupe" },
-        h("span", { class: "mk" }, h("img", { src: "/assets/logo.svg", alt: "", width: "22", height: "22" })),
-        h("span", { class: "nm", text: "Ozone Groupe" })),
+    var closeBtn = h("button", { class: "dash-close", type: "button", "aria-label": "Fermer le menu", onclick: function () { setNav(false); } }, icon(IC.x));
+    var side = h("aside", { class: "dash-side", id: "dashSide" },
+      h("div", { class: "dash-brandrow" },
+        h("a", { class: "dash-brand", href: "/", "aria-label": "Ozone Groupe" },
+          h("span", { class: "mk" }, h("img", { src: "/assets/logo.svg", alt: "", width: "22", height: "22" })),
+          h("span", { class: "tx" }, h("span", { class: "nm", text: "Ozone Groupe" }), h("span", { class: "sub", text: "Dashboard" }))),
+        closeBtn),
       h("a", { class: "dash-sideback", href: "/" }, icon(IC.back), h("span", { class: "lbl", text: "Retour au site" })),
       h("div", { class: "dash-side-head" },
         avatar("icons", g.id, g.icon, g.name, true),
-        h("div", { class: "txt" }, h("strong", { text: g.name }), h("span", { text: g.manage ? "Gestionnaire" : "Membre" })),
+        h("div", { class: "txt" }, h("strong", { text: g.name }), h("span", { class: "role" + (g.manage ? " mgr" : ""), text: g.manage ? "Gestionnaire" : "Membre" })),
         toggle),
       h("div", { class: "dash-side-body" },
-        searchBox, nav,
+        searchBox, nav, account,
         h("div", { class: "dash-side-foot" }, pill,
           h("div", { class: "dash-user" }, avatar("avatars", u.id, u.avatar, u.username),
             h("div", { class: "txt" }, h("strong", { text: u.username }), h("span", { text: g.manage ? "Gestionnaire" : "Membre" })),
@@ -415,12 +439,14 @@
     var main = h("div", { class: "dash-main" });
     var side = sidebar();
     var u = state.me.user;
+    var burger = h("button", { class: "dash-burger", id: "dashBurger", type: "button", "aria-label": "Ouvrir le menu", "aria-controls": "dashSide", "aria-expanded": "false", onclick: function () { setNav(true); } }, icon(IC.menu));
     var top = h("header", { class: "dash-top" },
+      burger,
       h("div", { class: "dash-top-t" },
         h("span", { class: "dash-eyebrow", text: tab === "overview" ? "Statistiques" : tab === "protect" ? "Protect" : tab === "embed" ? "Outils" : "Player 1" }),
         h("h2", { class: "dash-top-title", text: TITLES[tab] })),
       h("div", { class: "dash-top-r" }, side.querySelector("#dashOnline"), avatar("avatars", u.id, u.avatar, u.username)));
-    var sh = h("div", { class: "dash-shell" + (collapsed && !mobileQ.matches ? " collapsed" : "") }, side, h("div", { class: "dash-col" }, top, main));
+    var sh = h("div", { class: "dash-shell" + (collapsed && !mobileQ.matches ? " collapsed" : "") }, side, h("div", { class: "dash-scrim", "aria-hidden": "true", onclick: function () { setNav(false); } }), h("div", { class: "dash-col" }, top, main));
     main.appendChild(tab === "overview" ? overviewView() : tab === "settings" ? settingsView() : tab === "protect" ? protectView() : tab === "embed" ? embedView() : tab === "playlists" ? playlistsView() : tab === "trending" ? trendingView() : liveView());
     view.replaceChildren(sh);
     window.scrollTo({ top: keepScroll === true ? y : 0 });
@@ -430,7 +456,7 @@
   document.addEventListener("keydown", function (e) {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
       var s = document.getElementById("dashSearch");
-      if (s) { e.preventDefault(); var sd = s.closest(".dash-side"); if (sd) sd.classList.add("open"); s.focus(); s.select(); }
+      if (s) { e.preventDefault(); setNav(true); s.focus(); s.select(); }
     }
   });
 
