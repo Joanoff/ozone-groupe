@@ -432,7 +432,7 @@
     ctrl.status = h("span", { class: "eb-status" });
     var json = h("textarea", { rows: 6, placeholder: "Colle ici un JSON de webhook pour le modifier", "aria-label": "JSON" });
     var top = h("div", { class: "eb-card eb-top" },
-      h("div", { class: "eb-row top" }, h("div", { class: "grow" }, h("div", { class: "eb-f" }, h("span", { class: "eb-l", text: "Webhook Discord" }), h("div", { class: "eb-row" }, url, eye)),
+      h("div", { class: "eb-row top eb-hookrow" }, h("div", { class: "grow" }, h("div", { class: "eb-f" }, h("span", { class: "eb-l", text: "Webhook Discord" }), h("div", { class: "eb-row" }, url, eye)),
         h("p", { class: "eb-hint", text: "Salon > Modifier > Intégrations > Webhooks. Le lien reste dans ton navigateur." })), seg),
       h("div", { class: "eb-row wrap" }, chk(S, "remember", "Mémoriser le lien sur cet appareil"), h("span", { class: "grow" }), tpl,
         btn("Copier le JSON", function () { copy(JSON.stringify(payload(S), null, 2)).then(function () { toast("JSON copié"); }, function () { toast("Copie impossible", true); }); }, "ghost"),
