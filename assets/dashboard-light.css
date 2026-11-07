@@ -345,6 +345,14 @@ html.booting, html.booting body { overflow: hidden; }
    Mobile / tablette (≤ 960 px) : menu hamburger + tiroir latéral
    ========================================================================== */
 .dash-scrim { display: none; }
+
+/* Bureau : le menu est fixé à la fenêtre et occupe toute la hauteur, même en bas de page (le pied de page ne laisse plus de vide dessous) */
+@media (min-width: 961px) {
+  .dash-page .dash-shell, .dash-page .dash-shell.collapsed { display: block; padding-left: 248px; transition: padding-left .3s var(--ease); }
+  .dash-page .dash-shell.collapsed { padding-left: 72px; }
+  .dash-page .dash-side { position: fixed; top: 0; left: 0; bottom: 0; z-index: 40; width: 248px; height: 100vh; height: 100dvh; max-height: none; transition: width .3s var(--ease); }
+  .dash-page .dash-shell.collapsed .dash-side { width: 72px; }
+}
 @media (max-width: 960px) {
   .dash-page .dash-shell, .dash-page .dash-shell.collapsed { display: block; min-height: 100vh; }
 
