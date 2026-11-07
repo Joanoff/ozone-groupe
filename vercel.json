@@ -34,7 +34,7 @@
       "destination": "/api/settings"
     },
     {
-      "source": "/dashboard/:tab(vue-ensemble|direct|du-moment|playlists|reglages|protection)",
+      "source": "/dashboard/:tab(vue-ensemble|direct|du-moment|playlists|reglages|protection|createur-embed)",
       "destination": "/dashboard"
     }
   ]
