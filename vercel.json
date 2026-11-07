@@ -36,6 +36,10 @@
     {
       "source": "/dashboard/:tab(vue-ensemble|direct|du-moment|playlists|reglages|protection|createur-embed)",
       "destination": "/dashboard"
+    },
+    {
+      "source": "/dashboard/:tab(vue-ensemble|direct|du-moment|playlists|reglages|protection|createur-embed)/:id(\\d+)",
+      "destination": "/dashboard"
     }
   ]
 }
