@@ -38,23 +38,36 @@ body.dash-page {
   top: 0; height: 100vh; min-height: 0; gap: 0; padding: 0; border: 0; border-right: 1px solid var(--line);
   border-radius: 0; background: #fff;
 }
-.dash-brand { display: flex; align-items: center; gap: 10px; padding: 16px 16px 12px; min-width: 0; }
-.dash-brand .mk { width: 40px; height: 40px; flex: none; display: grid; place-items: center; border-radius: 10px; background: var(--ink); }
-.dash-brand img { width: 22px; height: 22px; }
-.dash-brand .nm { font-weight: 700; font-size: 15px; color: var(--ink); letter-spacing: -0.01em; white-space: nowrap; }
+.dash-brandrow { display: flex; align-items: center; gap: 8px; padding: 16px 12px 10px 16px; min-width: 0; }
+.dash-brand { display: flex; align-items: center; gap: 11px; min-width: 0; flex: 1; border-radius: 10px; }
+.dash-brand .mk { width: 38px; height: 38px; flex: none; display: grid; place-items: center; border-radius: 11px; background: var(--ink); box-shadow: 0 1px 2px rgba(14,42,28,.18), inset 0 0 0 1px rgba(255,255,255,.06); }
+.dash-brand img { width: 21px; height: 21px; }
+.dash-brand .tx { display: grid; min-width: 0; line-height: 1.2; }
+.dash-brand .nm { font-weight: 700; font-size: 15px; color: var(--ink); letter-spacing: -0.015em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dash-brand .sub { font-size: 11.5px; font-weight: 500; color: var(--muted-soft); letter-spacing: .01em; }
+.dash-close, .dash-burger { display: none; }
 
 .dash-page .dash-sideback {
-  margin: 0 10px 6px; height: 38px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-weight: 500;
+  margin: 0 12px 8px; height: 34px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-weight: 500;
 }
 .dash-page .dash-sideback:hover { background: #f1f5f2; color: var(--text); border: 0; }
-.dash-page .dash-side-head { padding: 10px 16px; margin: 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
-.dash-page .dash-side-head .dash-avatar { width: 32px; height: 32px; border-radius: 8px; background: var(--g-soft); border-color: var(--g-line); color: var(--g-dark); }
+.dash-page .dash-side-head { padding: 9px 8px 9px 10px; margin: 2px 12px 6px; gap: 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg-soft); }
+.dash-page .dash-side-head .dash-avatar { width: 34px; height: 34px; border-radius: 9px; background: var(--g-soft); border-color: var(--g-line); color: var(--g-dark); }
 .dash-page .dash-side-head strong { font-family: var(--font); font-size: 14px; font-weight: 650; color: var(--text); letter-spacing: -0.01em; }
+.dash-page .dash-side-head .txt { gap: 3px; }
+.dash-page .dash-side-head .role { display: inline-flex; width: fit-content; align-items: center; padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; line-height: 1.5; color: var(--muted); background: #eef2ef; }
+.dash-page .dash-side-head .role.mgr { color: var(--g-dark); background: var(--g-soft); }
+.dash-page .dash-toggle { width: 30px; height: 30px; border-radius: 8px; }
 .dash-page .dash-toggle:hover { background: #f1f5f2; color: var(--text); }
 
 .dash-page .dash-side-body { padding: 8px 10px 12px; gap: 0; }
 .dash-page .dash-search, .dash-page .dash-side-foot { display: none; }
-.dash-page .dash-nav { margin: 0; padding: 0; scrollbar-color: var(--line-strong) transparent; }
+.dash-account { flex: none; display: grid; gap: 2px; padding: 8px 0 10px; margin-top: 4px; border-top: 1px solid var(--line); }
+.dash-page .dash-nav { margin: 0; padding: 0 0 12px; scrollbar-width: thin; scrollbar-color: transparent transparent; transition: scrollbar-color .2s; }
+.dash-page .dash-nav:hover { scrollbar-color: var(--line-strong) transparent; }
+.dash-page .dash-nav::-webkit-scrollbar { width: 6px; }
+.dash-page .dash-nav::-webkit-scrollbar-thumb { background: transparent; border-radius: 6px; }
+.dash-page .dash-nav:hover::-webkit-scrollbar-thumb { background: var(--line-strong); }
 .dash-page .dash-group { margin-top: 12px; padding-top: 0; border-top: 0; }
 .dash-page .dash-group:first-child { margin-top: 0; }
 .dash-page .dash-ghead { padding: 6px 12px; font-size: 12px; font-weight: 600; color: var(--muted-soft); pointer-events: none; }
@@ -71,9 +84,11 @@ body.dash-page {
 .dash-page .dash-navbtn.danger:hover { background: #fff5f4; color: var(--bad); }
 .dash-page .dash-navbtn.danger:hover .ic { color: var(--bad); }
 
-.dash-page .dash-shell.collapsed .dash-brand { justify-content: center; padding: 16px 0 12px; }
-.dash-page .dash-shell.collapsed .dash-brand .nm { display: none; }
-.dash-page .dash-shell.collapsed .dash-side-head { flex-direction: column; padding: 10px 0; align-items: center; }
+.dash-page .dash-shell.collapsed .dash-brandrow { justify-content: center; padding: 16px 0 10px; }
+.dash-page .dash-shell.collapsed .dash-brand { flex: none; }
+.dash-page .dash-shell.collapsed .dash-brand .tx { display: none; }
+.dash-page .dash-shell.collapsed .dash-side-head { flex-direction: column; padding: 8px 0; margin: 2px 8px 6px; align-items: center; }
+.dash-page .dash-shell.collapsed .dash-sideback { margin: 0 8px 8px; }
 .dash-page .dash-shell.collapsed .dash-navbtn[aria-current="page"]::before { left: -10px; }
 
 /* ---------- En-tête de page ---------- */
@@ -177,16 +192,13 @@ body.dash-page {
 .dash-page .site-footer { border-top: 0; padding: 20px 0 28px; margin-top: 0; }
 .dash-page .site-footer .footer-bottom { justify-content: center; text-align: center; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted-soft); }
 .dash-page .site-footer a:hover { color: var(--g-dark); }
-.dash-page .dash.in-guild ~ .site-footer { margin-left: 248px; }
+.dash-page .dash.in-guild ~ .site-footer { margin-left: 248px; width: calc(100% - 248px); }
+.dash-page:has(.dash-shell.collapsed) .dash.in-guild ~ .site-footer { margin-left: 72px; width: calc(100% - 72px); }
 
 @media (max-width: 960px) {
   .dash-page .dash-shell, .dash-page .dash-shell.collapsed { grid-template-columns: minmax(0, 1fr); min-height: 0; }
-  .dash-page .dash-side { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
-  .dash-page .dash-side-body { padding: 8px 10px 12px; }
-  .dash-page .dash-navbtn[aria-current="page"]::before { display: none; }
   .dash-page .dash-main { padding: 18px 16px 40px; }
-  .dash-top { padding: 10px 16px; position: static; }
-  .dash-page .dash.in-guild ~ .site-footer { margin-left: 0; }
+  .dash-page .dash.in-guild ~ .site-footer, .dash-page:has(.dash-shell.collapsed) .dash.in-guild ~ .site-footer { margin-left: 0; width: 100%; }
 }
 
 /* ---------- Écran de connexion ---------- */
@@ -315,8 +327,9 @@ html.booting, html.booting body { overflow: hidden; }
 
 /* ---------- Correctifs d'affichage ---------- */
 /* Menu latéral : toujours aussi haut que la fenêtre, avec défilement interne si la liste est longue (plus de bande grise en bas) */
-.dash-page .dash-side { position: sticky; top: 0; align-self: start; height: 100vh; max-height: 100vh; overflow: hidden; }
-.dash-page .dash-side-body { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.dash-page .dash-side { position: sticky; top: 0; align-self: start; height: 100vh; height: 100dvh; max-height: 100vh; max-height: 100dvh; overflow: hidden; }
+.dash-page .dash-side-body { overflow: hidden; }
+.dash-page .dash-nav { overscroll-behavior: contain; }
 .dash-page .dash-shell, .dash-page .dash-col { background: var(--bg); }
 .dash-page .site-footer { background: var(--bg); }
 /* Bouton « Actualiser » : icône centrée dans un carré net, même hauteur que les onglets 7 j / 30 j / 90 j */
@@ -325,4 +338,59 @@ html.booting, html.booting body { overflow: hidden; }
 .dash-page .dash-x .ic { display: grid; place-items: center; width: 100%; height: 100%; }
 .dash-page .dash-x svg { display: block; margin: auto; }
 .dash-page .ov-tools .dash-x:active svg { transform: rotate(180deg); transition: transform .35s; }
-@media (max-width: 960px) { .dash-page .dash-side { position: relative; height: auto; max-height: none; overflow: visible; } }
+
+
+
+/* ==========================================================================
+   Mobile / tablette (≤ 960 px) : menu hamburger + tiroir latéral
+   ========================================================================== */
+.dash-scrim { display: none; }
+@media (max-width: 960px) {
+  .dash-page .dash-shell, .dash-page .dash-shell.collapsed { display: block; min-height: 100vh; }
+
+  /* Barre du haut collante, avec le bouton hamburger */
+  .dash-page .dash-top { position: sticky; top: 0; z-index: 30; min-height: 56px; padding: 8px 14px; gap: 12px; justify-content: flex-start; }
+  .dash-page .dash-top-t { flex: 1; }
+  .dash-page .dash-top-title { font-size: 16.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .dash-page .dash-top-r { margin-left: auto; gap: 10px; }
+  .dash-burger, .dash-close {
+    display: inline-grid; place-items: center; flex: none; width: 40px; height: 40px; padding: 0; border-radius: 10px;
+    border: 1px solid var(--line-strong); background: #fff; color: var(--text); cursor: pointer; line-height: 0;
+    transition: background .2s, border-color .2s;
+  }
+  .dash-burger:hover, .dash-close:hover { background: #f1f5f2; }
+  .dash-burger:active, .dash-close:active { background: #e9efeb; }
+  .dash-burger svg, .dash-close svg { width: 20px; height: 20px; }
+  .dash-close { width: 36px; height: 36px; border-color: transparent; background: transparent; color: var(--muted); }
+
+  /* Le menu devient un tiroir qui glisse depuis la gauche */
+  .dash-page .dash-side {
+    position: fixed; top: 0; left: 0; bottom: 0; z-index: 60; width: min(300px, 86vw); height: 100vh; height: 100dvh;
+    max-height: none; border: 0; border-right: 1px solid var(--line); border-radius: 0 18px 18px 0;
+    transform: translateX(-104%); visibility: hidden; box-shadow: none;
+    transition: transform .3s var(--ease), box-shadow .3s, visibility 0s linear .3s;
+  }
+  .dash-page .dash-side.open { transform: none; visibility: visible; box-shadow: 12px 0 40px rgba(14, 28, 20, .22); transition: transform .3s var(--ease), box-shadow .3s, visibility 0s; }
+  .dash-page .dash-side-body { display: flex; max-height: none; padding: 6px 10px 0; }
+  .dash-page .dash-sideback { display: flex; }
+  .dash-page .dash-toggle { display: none; }
+  .dash-page .dash-nav { padding-bottom: 8px; }
+  .dash-account { padding-bottom: max(14px, env(safe-area-inset-bottom)); }
+  .dash-page .dash-navbtn { height: 44px; }
+
+  /* Voile derrière le tiroir */
+  .dash-scrim { display: block; position: fixed; inset: 0; z-index: 50; background: rgba(14, 28, 20, .45); opacity: 0; pointer-events: none; transition: opacity .25s; -webkit-tap-highlight-color: transparent; }
+  .dash-shell.nav-open .dash-scrim { opacity: 1; pointer-events: auto; }
+  body:has(.dash-shell.nav-open) { overflow: hidden; }
+
+  /* Le bouton « Retour au site » flottant n'a plus lieu d'être : il est dans le tiroir */
+  .dash.in-guild .dash-back { display: none; }
+}
+@media (max-width: 520px) {
+  .dash-page .dash-top-r .dash-online .t { display: none; }
+  .dash-page .dash-top-r .dash-online { padding: 8px; }
+  .dash-page .dash-top .dash-eyebrow { font-size: 10.5px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dash-page .dash-side, .dash-scrim { transition: none !important; }
+}
