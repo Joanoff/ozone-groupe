@@ -796,8 +796,8 @@
 
   function protectView() {
     var gid = state.guild.id, box = h("div", { class: "pt" }, h("p", { class: "dash-muted", text: "Chargement…" }));
-    function post(extra) { extra.guild = gid; return api("/api/protect", extra); }
-    api("/api/protect?id=" + gid).then(function (d) {
+    function post(extra) { extra.guild = gid; extra.scope = "protect"; return api("/api/settings", extra); }
+    api("/api/settings?id=" + gid).then(function (d) {
       var s = d.settings, label = {};
       var general = h("div", { class: "dash-card" }, h("h2", { text: "Protection du serveur" }),
         h("p", { class: "hint", text: "Protect applique les changements en quelques secondes. Les seuils, durées et listes se règlent avec /protect sur Discord." }),
@@ -1463,7 +1463,7 @@
     if (!state.me) return;
     var seg = location.pathname.replace(/\/+$/, "").split("/")[2];
     var tab = TAB_OF[seg], id = location.hash.replace("#", "");
-    var g = state.me.guilds.filter(function (x) { return x.id === id && x.bot !== false; })[0];
+    var g = state.me.guilds.filter(function (x) { return x.id === id && (x.bot !== false || x.protect === true); })[0];
     if (!g) { state.want = tab || null; return renderGuilds(); }
     if (state.guild && state.guild.id === g.id && state.data) {   // même serveur : on change juste d'onglet
       state.tab = allowed(g, tab) ? tab : state.tab;
