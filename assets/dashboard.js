@@ -78,11 +78,15 @@
       else if (k === "text") el.textContent = v;
       else el.setAttribute(k, v === true ? "" : v);
     }
-    for (var i = 2; i < arguments.length; i++) {
-      var c = arguments[i];
-      if (c == null || c === false) continue;
-      el.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
-    }
+    (function add(list) {
+      for (var i = 0; i < list.length; i++) {
+        var c = list[i];
+        if (c == null || c === false) continue;
+        if (Array.isArray(c)) { add(c); continue; }
+        if (typeof c === "string" || typeof c === "number") c = document.createTextNode(String(c));
+        if (c && c.nodeType) el.appendChild(c);
+      }
+    })(Array.prototype.slice.call(arguments, 2));
     return el;
   }
 
