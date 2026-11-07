@@ -249,12 +249,12 @@
 
   /* ---------- Serveur sélectionné ---------- */
 
-  // Adresses : /dashboard/<onglet>#<id du serveur>  (le #id garde le serveur choisi)
+  // Adresses : /dashboard/<onglet>/<id du serveur>  (l'ancien format /dashboard/<onglet>#<id> reste lu)
   var SLUG = { overview: "vue-ensemble", live: "direct", trending: "du-moment", playlists: "playlists", settings: "reglages", protect: "protection", embed: "createur-embed" };
   var TAB_OF = {};
   Object.keys(SLUG).forEach(function (k) { TAB_OF[SLUG[k]] = k; });
   function allowed(g, tab) { return tab && SLUG[tab] && (g.manage || (tab !== "overview" && tab !== "settings" && tab !== "protect")); }
-  function pathFor(g, tab) { return "/dashboard/" + SLUG[tab] + "#" + g.id; }
+  function pathFor(g, tab) { return "/dashboard/" + SLUG[tab] + "/" + g.id; }
 
   function openGuild(g, tab, replace) {
     state.guild = g; state.pid = null;
@@ -1500,8 +1500,8 @@
   // Choisit l'écran d'après l'adresse (au chargement, et avec les boutons précédent / suivant du navigateur)
   function route() {
     if (!state.me) return;
-    var seg = location.pathname.replace(/\/+$/, "").split("/")[2];
-    var tab = TAB_OF[seg], id = location.hash.replace("#", "");
+    var parts = location.pathname.replace(/\/+$/, "").split("/");
+    var tab = TAB_OF[parts[2]], id = /^\d+$/.test(parts[3] || "") ? parts[3] : location.hash.replace("#", "");
     var g = state.me.guilds.filter(function (x) { return x.id === id && (x.bot !== false || x.protect === true); })[0];
     if (!g) { state.want = tab || null; return renderGuilds(); }
     if (state.guild && state.guild.id === g.id && state.data) {   // même serveur : on change juste d'onglet
