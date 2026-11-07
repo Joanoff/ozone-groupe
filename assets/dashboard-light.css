@@ -312,3 +312,17 @@ html.booting, html.booting body { overflow: hidden; }
 .pt-id { font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; }
 .pt-st { font-weight: 600; } .pt-st.active { color: var(--g-dark); } .pt-st.revoked { color: var(--muted); }
 @media (max-width: 640px) { .pt-row { align-items: flex-start; flex-direction: column; } }
+
+/* ---------- Correctifs d'affichage ---------- */
+/* Menu latéral : toujours aussi haut que la fenêtre, avec défilement interne si la liste est longue (plus de bande grise en bas) */
+.dash-page .dash-side { position: sticky; top: 0; align-self: start; height: 100vh; max-height: 100vh; overflow: hidden; }
+.dash-page .dash-side-body { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.dash-page .dash-shell, .dash-page .dash-col { background: var(--bg); }
+.dash-page .site-footer { background: var(--bg); }
+/* Bouton « Actualiser » : icône centrée dans un carré net, même hauteur que les onglets 7 j / 30 j / 90 j */
+.dash-page .ov-tools .dash-x, .dash-page .dash-x { display: inline-grid; place-items: center; padding: 0; line-height: 0; }
+.dash-page .ov-tools .dash-x { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--line-strong); box-shadow: none; }
+.dash-page .dash-x .ic { display: grid; place-items: center; width: 100%; height: 100%; }
+.dash-page .dash-x svg { display: block; margin: auto; }
+.dash-page .ov-tools .dash-x:active svg { transform: rotate(180deg); transition: transform .35s; }
+@media (max-width: 960px) { .dash-page .dash-side { position: relative; height: auto; max-height: none; overflow: visible; } }
