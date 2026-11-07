@@ -1,0 +1,72 @@
+/* ==========================================================================
+   Site Ozone Groupe — thème clair (même langage visuel que le dashboard,
+   inspiré du panel Zenode). Chargé après style.css sur toutes les pages.
+   ========================================================================== */
+
+:root {
+  --bg: #f5f7f5; --bg-soft: #f8faf8; --card: #fff; --card-hover: #fff;
+  --line: #e4e9e5; --line-strong: #d3dad5;
+  --text: #18211c; --muted: #66756c; --muted-soft: #93a099;
+  --white: #0e2a1c;               /* ancien « blanc » : devient l'encre foncée (textes, soulignements) */
+  --g: #1f9d55; --g-dark: #168043; --g-soft: #e8f6ee; --g-line: #bfe3cd; --ink: #0e2a1c;
+  --radius: 10px; --radius-lg: 12px;
+}
+body { background: var(--bg); color: var(--text); }
+::selection { background: var(--g-line); color: var(--ink); }
+:focus-visible { outline: 2px solid var(--g); outline-offset: 2px; }
+.bg-glow, .bg-grid { display: none; }
+
+/* ---------- En-tête : barre blanche plate ---------- */
+.site-header { padding-top: 0; background: #fff; border-bottom: 1px solid var(--line); pointer-events: auto; }
+.site-header .nav, .site-header.is-scrolled .nav {
+  width: 100%; max-width: var(--max); height: 64px; margin: 0 auto; padding: 0 clamp(20px, 4vw, 24px);
+  border: 0; border-radius: 0; background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none;
+}
+.site-header.is-scrolled .nav { height: 60px; }
+.brand .mark { width: 34px; height: 34px; padding: 6px; border-radius: 8px; background: var(--ink); }
+.brand:hover .mark { transform: none; }
+.nav-links ul { border: 0; background: transparent; padding: 0; gap: 4px; }
+.nav-link { border-radius: 8px; color: #3d4a43; }
+.nav-link:hover { background: #f1f5f2; color: var(--text); }
+.nav-link[aria-current="page"] { background: var(--g-soft); color: var(--g-dark); font-weight: 600; }
+.nav-discord { color: var(--muted); }
+.nav-discord:hover { color: var(--text); }
+.nav-toggle, .site-header .nav-toggle { border-radius: 8px; background: #fff; }
+.nav-toggle:hover { background: #f3f6f4; border-color: var(--line-strong); }
+.drawer-backdrop { background: rgba(14, 42, 28, .35); }
+.drawer-panel { background: #fff; }
+.site-header.menu-open .nav { background: #fff; }
+
+/* ---------- Boutons ---------- */
+.btn { border-radius: 8px; }
+.btn-primary { background: var(--g); color: #fff; border-color: var(--g); }
+.btn-primary::before { display: none; }
+.btn-primary:hover { background: var(--g-dark); border-color: var(--g-dark); transform: none; box-shadow: none; }
+.btn-ghost { background: #fff; color: var(--text); border-color: var(--line-strong); }
+.btn-ghost:hover { background: #f3f6f4; border-color: var(--line-strong); transform: none; }
+
+/* ---------- Accueil ---------- */
+.hero-badge { background: #fff; border-color: var(--line); color: var(--muted); animation: none; }
+.hero-badge .dot, .pill .dot { background: var(--g); box-shadow: none; }
+.hero-badge .dot { box-shadow: 0 0 0 4px rgba(31, 157, 85, .15); }
+.pill { background: #fff; border-color: var(--line); }
+.pill.soon .dot { background: var(--muted-soft); }
+.badge { background: #eef2ef; color: var(--muted); }
+
+.bot-card, .value-card, .dev, .add-item { background: #fff; border-color: var(--line); box-shadow: 0 1px 2px rgba(16, 40, 28, .04); }
+.bot-card::after { display: none; }
+.bot-card:hover { background: #fff; border-color: var(--g-line); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(16, 40, 28, .08); }
+.bot-avatar { background: #f3f6f4; box-shadow: 0 2px 8px rgba(16, 40, 28, .1); border-radius: 12px; }
+.bot-card:hover .bot-avatar { transform: none; border-color: var(--g-line); }
+
+.cta { background: var(--g-soft); border-color: var(--g-line); }
+.cta:hover { border-color: var(--g); }
+
+/* ---------- Pages légales / ajouter ---------- */
+.legal-content, .toc, .legal-table, .add-body { color: var(--text); }
+.legal-content a { text-decoration-color: var(--g); }
+.legal-table { background: #fff; }
+
+/* ---------- Pied de page ---------- */
+.site-footer { background: #fff; border-top: 1px solid var(--line); margin-top: 40px; }
+.footer-grid a:hover, .footer-bottom a:hover { color: var(--g-dark); }
