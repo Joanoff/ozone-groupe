@@ -246,7 +246,7 @@
   /* ---------- Serveur sélectionné ---------- */
 
   // Adresses : /dashboard/<onglet>#<id du serveur>  (le #id garde le serveur choisi)
-  var SLUG = { overview: "vue-ensemble", live: "direct", trending: "du-moment", playlists: "playlists", settings: "reglages", protect: "protection" };
+  var SLUG = { overview: "vue-ensemble", live: "direct", trending: "du-moment", playlists: "playlists", settings: "reglages", protect: "protection", embed: "createur-embed" };
   var TAB_OF = {};
   Object.keys(SLUG).forEach(function (k) { TAB_OF[SLUG[k]] = k; });
   function allowed(g, tab) { return tab && SLUG[tab] && (g.manage || (tab !== "overview" && tab !== "settings" && tab !== "protect")); }
@@ -288,15 +288,17 @@
     panel: '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/>',
     updown: '<path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/>',
     back: '<path d="m15 18-6-6 6-6"/>',
-    protect: '<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/>'
+    protect: '<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/>',
+    embed: '<rect width="18" height="7" x="3" y="3" rx="1"/><rect width="9" height="7" x="3" y="14" rx="1"/><rect width="5" height="7" x="16" y="14" rx="1"/>',
+    eye: '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>'
   };
   // Tout membre pilote la musique ; les statistiques et les réglages sont réservés aux gestionnaires.
   function navFor(manage) {
     return manage
-      ? [["Statistiques", [["overview", "Vue d'ensemble"]]], ["Player 1", [["live", "En direct"], ["trending", "Du moment"], ["playlists", "Playlists"], ["settings", "Réglages"]]], ["Protect", [["protect", "Protection"]]]]
-      : [["Player 1", [["live", "En direct"], ["trending", "Du moment"], ["playlists", "Playlists"]]]];
+      ? [["Statistiques", [["overview", "Vue d'ensemble"]]], ["Player 1", [["live", "En direct"], ["trending", "Du moment"], ["playlists", "Playlists"], ["settings", "Réglages"]]], ["Protect", [["protect", "Protection"]]], ["Outils", [["embed", "Créateur d'embed"]]]]
+      : [["Player 1", [["live", "En direct"], ["trending", "Du moment"], ["playlists", "Playlists"]]], ["Outils", [["embed", "Créateur d'embed"]]]];
   }
-  var TITLES = { overview: "Vue d'ensemble", live: "En direct", trending: "Du moment", playlists: "Playlists", settings: "Réglages", protect: "Protection" };
+  var TITLES = { overview: "Vue d'ensemble", live: "En direct", trending: "Du moment", playlists: "Playlists", settings: "Réglages", protect: "Protection", embed: "Créateur d'embed" };
   var mobileQ = window.matchMedia("(max-width: 960px)");
   var collapsed = false;
   try { collapsed = localStorage.getItem("ozone_side") === "1"; } catch (e) { /* stockage indisponible */ }
@@ -411,11 +413,11 @@
     var u = state.me.user;
     var top = h("header", { class: "dash-top" },
       h("div", { class: "dash-top-t" },
-        h("span", { class: "dash-eyebrow", text: tab === "overview" ? "Statistiques" : tab === "protect" ? "Protect" : "Player 1" }),
+        h("span", { class: "dash-eyebrow", text: tab === "overview" ? "Statistiques" : tab === "protect" ? "Protect" : tab === "embed" ? "Outils" : "Player 1" }),
         h("h2", { class: "dash-top-title", text: TITLES[tab] })),
       h("div", { class: "dash-top-r" }, side.querySelector("#dashOnline"), avatar("avatars", u.id, u.avatar, u.username)));
     var sh = h("div", { class: "dash-shell" + (collapsed && !mobileQ.matches ? " collapsed" : "") }, side, h("div", { class: "dash-col" }, top, main));
-    main.appendChild(tab === "overview" ? overviewView() : tab === "settings" ? settingsView() : tab === "protect" ? protectView() : tab === "playlists" ? playlistsView() : tab === "trending" ? trendingView() : liveView());
+    main.appendChild(tab === "overview" ? overviewView() : tab === "settings" ? settingsView() : tab === "protect" ? protectView() : tab === "embed" ? embedView() : tab === "playlists" ? playlistsView() : tab === "trending" ? trendingView() : liveView());
     view.replaceChildren(sh);
     window.scrollTo({ top: keepScroll === true ? y : 0 });
   }
@@ -775,6 +777,13 @@
   function rbtn(name, label, cls, fn, disabled) {
     return h("button", { class: "live-btn " + (cls || ""), type: "button", title: label, "aria-label": label, disabled: disabled, onclick: function (ev) { fn(ev.currentTarget); } },
       icon(IC[name], "ic" + (name === "play" || name === "stop" ? " fill" : "")));
+  }
+
+  /* ---------- Outils : créateur d'embed (voir embed-builder.js) ---------- */
+
+  function embedView() {
+    return window.OzoneEmbed ? window.OzoneEmbed.view({ h: h, icon: icon, IC: IC, toast: toast })
+      : h("div", { class: "dash-card" }, h("p", { class: "hint", text: "Le créateur d'embed n'a pas pu se charger. Recharge la page." }));
   }
 
   /* ---------- Protect (modération) ---------- */
