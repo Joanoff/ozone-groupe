@@ -1,0 +1,28 @@
+/* ==========================================================================
+   Pages publiques — complément du mode sombre (accueil, ajouter, conditions, confidentialité, mentions).
+   À charger APRÈS site-light.css et dashboard-dark.css (qui porte déjà les couleurs du site).
+   ========================================================================== */
+
+/* Bouton de thème dans l'en-tête */
+.theme-btn { width: 34px; height: 34px; flex: none; display: grid; place-items: center; padding: 0; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--muted); cursor: pointer; transition: color .15s, border-color .15s, background .15s; }
+.theme-btn:hover { color: var(--text); border-color: var(--line-strong); background: var(--bg-soft); }
+.theme-btn svg { width: 18px; height: 18px; }
+.nav-cta { gap: 10px; }
+
+/* Fond : un léger fondu entre les deux thèmes */
+body { transition: background-color .2s ease, color .2s ease; }
+
+/* Accueil : onglets de l'aperçu Discord (fond blanc en dur) */
+html[data-theme="dark"] .dp-tab { background: #171f1a; }
+html[data-theme="dark"] .dp-tab[aria-selected="true"] { background: var(--g-soft); }
+/* L'aperçu Discord garde ses couleurs Discord, mais son ombre verte devient neutre */
+html[data-theme="dark"] .dc { box-shadow: 0 18px 50px rgba(0, 0, 0, .45); }
+
+/* Pages légales / ajouter */
+html[data-theme="dark"] .toc,
+html[data-theme="dark"] .legal-table th,
+html[data-theme="dark"] .legal-table td { border-color: var(--line); }
+html[data-theme="dark"] .legal-table th { background: #1c2620; }
+html[data-theme="dark"] .cta { background: var(--g-soft); border-color: var(--g-line); }
+html[data-theme="dark"] .bot-card:hover { border-color: var(--g-line); }
+html[data-theme="dark"] .btn-primary { color: #fff; }
