@@ -12,12 +12,6 @@
 /* Fond : un léger fondu entre les deux thèmes */
 body { transition: background-color .2s ease, color .2s ease; }
 
-/* Accueil : onglets de l'aperçu Discord (fond blanc en dur) */
-html[data-theme="dark"] .dp-tab { background: #171f1a; }
-html[data-theme="dark"] .dp-tab[aria-selected="true"] { background: var(--g-soft); }
-/* L'aperçu Discord garde ses couleurs Discord, mais son ombre verte devient neutre */
-html[data-theme="dark"] .dc { box-shadow: 0 18px 50px rgba(0, 0, 0, .45); }
-
 /* Pages légales / ajouter */
 html[data-theme="dark"] .toc,
 html[data-theme="dark"] .legal-table th,
