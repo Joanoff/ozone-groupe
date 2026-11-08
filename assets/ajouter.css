@@ -58,14 +58,7 @@ html[data-theme="dark"] .aj-steps { --st-fill: var(--bg, #0f1411); --st-glow: rg
 .aj-tip { margin-top: 18px; padding: 16px 20px; border: 1px solid var(--g-line, var(--line)); border-left: 3px solid var(--g, #1f9d55); border-radius: 0 var(--radius) var(--radius) 0; background: var(--g-soft, var(--bg-soft)); font-size: 14.5px; color: var(--muted); }
 .aj-tip strong { color: var(--text); }
 
-.aj-faq { display: grid; gap: 10px; max-width: 820px; }
-.aj-faq details { border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
-.aj-faq summary { display: flex; justify-content: space-between; gap: 16px; padding: 16px 20px; cursor: pointer; font-weight: 600; list-style: none; }
-.aj-faq summary::-webkit-details-marker { display: none; }
-.aj-faq summary::after { content: "+"; font-size: 20px; line-height: 1; color: var(--g, #1f9d55); transition: transform .2s; }
-.aj-faq details[open] summary::after { transform: rotate(45deg); }
-.aj-faq details p { padding: 0 20px 18px; color: var(--muted); font-size: 15px; }
-.aj-faq a, .aj-help a { text-decoration: underline; text-decoration-color: var(--g, #1f9d55); text-underline-offset: 3px; }
+.aj-help a { text-decoration: underline; text-decoration-color: var(--g, #1f9d55); text-underline-offset: 3px; }
 
 .aj-team { display: flex; flex-wrap: wrap; gap: 12px; list-style: none; padding: 0; }
 .aj-team li { display: flex; align-items: center; gap: 10px; padding: 8px 18px 8px 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); font-weight: 600; }
