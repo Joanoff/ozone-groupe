@@ -1,0 +1,71 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "functions": {
+    "api/player.js": {
+      "maxDuration": 60
+    }
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "geolocation=(), microphone=(), camera=()"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains; preload"
+        }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/auth/:action(login|logout|callback)",
+      "destination": "/api/auth?action=:action"
+    },
+    {
+      "source": "/api/protect",
+      "destination": "/api/settings"
+    },
+    {
+      "source": "/dashboard/:tab(vue-ensemble|direct|du-moment|playlists|reglages|protection|createur-embed)",
+      "destination": "/dashboard"
+    },
+    {
+      "source": "/dashboard/:tab(vue-ensemble|direct|du-moment|playlists|reglages|protection|createur-embed)/:id(\\d+)",
+      "destination": "/dashboard"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/conditions",
+      "destination": "/legal/conditions",
+      "permanent": true
+    },
+    {
+      "source": "/confidentialite",
+      "destination": "/legal/confidentialite",
+      "permanent": true
+    },
+    {
+      "source": "/mentions-legales",
+      "destination": "/legal/mentions-legales",
+      "permanent": true
+    }
+  ]
+}
