@@ -1,5 +1,0 @@
-.hero-stats { display: flex; flex-wrap: wrap; gap: 14px; list-style: none; padding: 0; margin-top: 34px; }
-.hero-stats li { min-width: 130px; padding: 14px 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card); }
-.hero-stats li[hidden] { display: none; }
-.hero-stats strong { display: block; font-size: 24px; letter-spacing: -0.03em; font-weight: 650; color: var(--text); }
-.hero-stats span { font-size: 13px; color: var(--muted); }
