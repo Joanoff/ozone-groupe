@@ -1,0 +1,45 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/dashboard/:tab",
+      "destination": "/dashboard/index.html"
+    },
+    {
+      "source": "/dashboard/:tab/:id",
+      "destination": "/dashboard/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/conditions",
+      "destination": "/legal/conditions",
+      "type": 301
+    },
+    {
+      "source": "/confidentialite",
+      "destination": "/legal/confidentialite",
+      "type": 301
+    },
+    {
+      "source": "/mentions-legales",
+      "destination": "/legal/mentions-legales",
+      "type": 301
+    },
+    {
+      "source": "/mentions-légales",
+      "destination": "/legal/mentions-legales",
+      "type": 301
+    },
+    {
+      "source": "/mention-légales",
+      "destination": "/legal/mentions-legales",
+      "type": 301
+    },
+    {
+      "source": "/mention-legales",
+      "destination": "/legal/mentions-legales",
+      "type": 301
+    }
+  ]
+}
