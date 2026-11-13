@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zenode, l'association qui héberge nos bots — Ozone Groupe ™</title>
+  <meta name="description" content="Zenode est une association loi 1901 basée à Nantes. Elle héberge les bots Discord d'Ozone Groupe ™ : découvrez son projet, ses services et comment la soutenir.">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="canonical" href="https://ozone-groupe.vercel.app/zenode">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Ozone Groupe ™">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:title" content="Zenode, l'association qui héberge nos bots — Ozone Groupe ™">
+  <meta property="og:description" content="Zenode est une association loi 1901 basée à Nantes. Elle héberge les bots Discord d'Ozone Groupe ™ : découvrez son projet, ses services et comment la soutenir.">
+  <meta property="og:url" content="https://ozone-groupe.vercel.app/zenode">
+  <meta property="og:image" content="https://ozone-groupe.vercel.app/assets/og-image.png?v=2">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Ozone Groupe ™ — Le minimalisme, en mieux. Player 1, Player 2, Devcenter et Protect.">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Zenode, l'association qui héberge nos bots — Ozone Groupe ™">
+  <meta name="twitter:description" content="Zenode est une association loi 1901 basée à Nantes. Elle héberge les bots Discord d'Ozone Groupe ™ : découvrez son projet, ses services et comment la soutenir.">
+  <meta name="twitter:image" content="https://ozone-groupe.vercel.app/assets/og-image.png?v=2">
+  <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>document.documentElement.className += " js";</script>
+  <script src="/assets/theme.js"></script>
+  <link rel="stylesheet" href="/assets/style.css?v=20">
+  <link rel="stylesheet" href="/assets/dashboard-dark.css?v=1">
+  <link rel="stylesheet" href="/assets/site-dark.css?v=1">
+  <link rel="stylesheet" href="/assets/zenode.css?v=1">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/ambiance.css?v=1">
+</head>
+<body>
+  <div class="bg-glow" aria-hidden="true"></div>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <header class="site-header" id="header">
+    <div class="container nav">
+      <a class="brand" href="/" aria-label="Ozone Groupe — accueil">
+        <img class="mark" src="/assets/logo.svg" alt="" width="30" height="30">
+        <span class="brand-name">Ozone Groupe <span class="tm">™</span></span>
+      </a>
+
+      <nav class="nav-links" aria-label="Navigation principale">
+        <ul>
+        <li><a class="nav-link" href="/dashboard">Dashboard</a></li>
+        <li><a class="nav-link" href="/legal">Légal</a></li>
+        <li><a class="nav-link" href="/zenode" aria-current="page">Zenode</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-cta">
+        <a class="nav-discord" href="https://discord.gg/yZ7w5r4Csm" target="_blank" rel="noopener">Discord</a>
+        <a class="btn btn-primary btn-sm nav-add" href="/ajouter">
+          Ajouter un bot
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+        </a>
+        <button class="nav-toggle" id="navToggle" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="navDrawer"><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <div class="drawer" id="navDrawer" inert>
+    <div class="drawer-backdrop" data-drawer-close></div>
+    <aside class="drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
+      <nav aria-label="Navigation mobile">
+        <ul class="drawer-list">
+        <li><a class="drawer-link" href="/"><span class="drawer-num">01</span><span class="drawer-label">Accueil</span></a></li>
+        <li><a class="drawer-link" href="/legal"><span class="drawer-num">02</span><span class="drawer-label">Légal</span></a></li>
+        <li><a class="drawer-link" href="/zenode" aria-current="page"><span class="drawer-num">03</span><span class="drawer-label">Zenode</span></a></li>
+        <li><a class="drawer-link" href="/dashboard"><span class="drawer-num">04</span><span class="drawer-label">Dashboard</span></a></li>
+        <li><a class="drawer-link" href="https://discord.gg/yZ7w5r4Csm" target="_blank" rel="noopener"><span class="drawer-num">05</span><span class="drawer-label">Serveur Discord</span></a></li>
+        </ul>
+      </nav>
+      <div class="drawer-foot">
+        <a class="btn btn-primary" href="/ajouter">
+          Ajouter un bot
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+        </a>
+        <p class="drawer-meta">© 2026 Ozone Groupe ™ · <a href="mailto:ozone-groupe@outlook.fr">ozone-groupe@outlook.fr</a></p>
+      </div>
+    </aside>
+  </div>
+
+  <main class="container">
+    <div class="legal-hero">
+      <div class="zn-hero">
+        <div>
+          <h1 data-split>Zenode héberge nos bots</h1>
+          <p class="zn-lead">Player 1, Player 2, Devcenter et Protect tournent sur les serveurs de <strong>Zenode</strong>, une association française à but non lucratif basée à Nantes. Voici qui ils sont et ce qu'ils font.</p>
+          <div class="zn-actions">
+            <a class="btn btn-primary" href="https://zenode.fr" target="_blank" rel="noopener">Visiter zenode.fr <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a>
+            <a class="btn btn-ghost" href="https://zenode.fr/association" target="_blank" rel="noopener">Découvrir l'association</a>
+          </div>
+        </div>
+        <div class="zn-logo-card" role="img" aria-label="Logo Zenode">
+          <span class="zn-wordmark" aria-hidden="true">Zenode<span class="us">_</span></span>
+          <small>Association loi 1901 · Nantes</small>
+        </div>
+      </div>
+      <p class="updated">Dernière mise à jour&nbsp;: 8 novembre 2026</p>
+    </div>
+
+    <div class="zn-wrap">
+      <section class="reveal" id="association">
+        <h2>Une association, pas un hébergeur comme les autres</h2>
+        <p>Zenode est née en 2026 de l'initiative de lycéens nantais. Elle réunit aujourd'hui des étudiants, des développeurs indépendants et des particuliers qui veulent apprendre, partager leurs compétences et construire ensemble un projet numérique commun. Leur devise&nbsp;: <strong>apprendre, partager, héberger</strong>.</p>
+        <p>Son objet est de promouvoir l'informatique et le logiciel libre, et de mettre une infrastructure communautaire à disposition de ses membres et du public. Elle vise à proposer un hébergement qui ne dépende plus des géants du numérique.</p>
+        <div class="zn-stats">
+          <div class="zn-stat"><b>Loi 1901</b><span>Association non lucrative</span></div>
+          <div class="zn-stat"><b>Nantes</b><span>Serveurs hébergés en France</span></div>
+          <div class="zn-stat"><b>2026</b><span>Année de création</span></div>
+          <div class="zn-stat"><b>Bénévoles</b><span>Projet porté par la communauté</span></div>
+        </div>
+      </section>
+
+      <section class="reveal" id="engagements">
+        <h2>Ce qui guide leur projet</h2>
+        <div class="zn-grid">
+          <div class="zn-card"><span class="num">01</span><h3>Associatif</h3><p>Une association à but non lucratif, portée par des bénévoles. Les activités économiques restent accessoires et au service de l'objet.</p></div>
+          <div class="zn-card"><span class="num">02</span><h3>Libre et accessible</h3><p>Des outils libres et des solutions abordables, ouvertes à tous : particuliers, associations et entreprises.</p></div>
+          <div class="zn-card"><span class="num">03</span><h3>Souverain</h3><p>Production et données hébergées en France, sur une infrastructure située près de Nantes.</p></div>
+        </div>
+      </section>
+
+      <section class="reveal" id="apercu">
+        <h2>Un aperçu de leur site</h2>
+        <p>Voici à quoi ressemble <a href="https://zenode.fr" target="_blank" rel="noopener">zenode.fr</a>, le site de l'association.</p>
+        <div class="zn-grid two">
+          <a class="zn-shot" href="https://zenode.fr" target="_blank" rel="noopener">
+            <div class="zn-frame" aria-hidden="true"><i></i><i></i><i></i><span>zenode.fr</span></div>
+            <img src="/assets/zenode/accueil.webp" width="1356" height="648" loading="lazy" decoding="async" alt="Page d'accueil de zenode.fr : « Votre hébergement, associatif et français. »">
+            <span class="zn-cap">Accueil</span>
+          </a>
+          <a class="zn-shot" href="https://zenode.fr/projets" target="_blank" rel="noopener">
+            <div class="zn-frame" aria-hidden="true"><i></i><i></i><i></i><span>zenode.fr/projets</span></div>
+            <img src="/assets/zenode/projets.webp" width="1356" height="648" loading="lazy" decoding="async" alt="Page projets de zenode.fr : ZenodeBots, ZenodeLinks, ZenodeApps, ZenodeHost, ZenodePanel et ZenodeAssoCompta">
+            <span class="zn-cap">Nos projets</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="reveal" id="services">
+        <h2>Ce que Zenode propose</h2>
+        <p>Des outils concrets pour des projets personnels ou collectifs, aux tarifs les plus abordables possible.</p>
+        <div class="zn-grid two">
+          <a class="zn-card" href="https://zenode.fr/bots" target="_blank" rel="noopener"><h3>ZenodeBots</h3><p>Créer et héberger un bot Discord, sans écrire de code.</p><div class="zn-tags"><span>Discord</span><span>No-code</span><span>Gratuit</span></div></a>
+          <a class="zn-card" href="https://zenode.fr/host" target="_blank" rel="noopener"><h3>ZenodeHost</h3><p>Héberger votre propre code : un bot, une API, une application web.</p><div class="zn-tags"><span>Node.js</span><span>TypeScript</span><span>Python</span><span>dès 0,99&nbsp;€/mois</span></div></a>
+          <a class="zn-card" href="https://zenode.fr/apps" target="_blank" rel="noopener"><h3>ZenodeApps</h3><p>Des outils open source prêts à l'emploi, comme Gitea ou Uptime Kuma.</p><div class="zn-tags"><span>Gitea</span><span>Uptime Kuma</span><span>Prometheus</span></div></a>
+          <a class="zn-card" href="https://zenode.fr/games" target="_blank" rel="noopener"><h3>ZenodeGames</h3><p>Des serveurs de jeux Minecraft : Java, Forge et Bedrock.</p><div class="zn-tags"><span>Minecraft</span><span>Java</span><span>Bedrock</span></div></a>
+        </div>
+        <p style="margin-top:16px;">Il existe aussi des offres étudiantes et associatives, ainsi qu'un état des services sur <a href="https://zenode.fr/status" target="_blank" rel="noopener">ZenodeStatus</a>.</p>
+      </section>
+
+      <section class="reveal" id="bots">
+        <h2>Ce que Zenode héberge pour Ozone Groupe ™</h2>
+        <p>Sans cet hébergement, nos bots ne pourraient pas rester en ligne&nbsp;: merci à toute l'équipe.</p>
+        <ul class="zn-bots">
+          <li>๖̶ζ͜͡Ozone — Player 1</li>
+          <li>๖̶ζ͜͡Ozone — Player 2</li>
+          <li>๖̶ζ͜͡Devcenter</li>
+          <li>๖̶ζ͜͡Ozone Protect</li>
+        </ul>
+        <div class="legal-note">Ces bots restent édités et opérés par Ozone Groupe ™. Zenode fournit uniquement les serveurs sur lesquels ils s'exécutent. Ce site et le dashboard sont diffusés par Vercel, comme indiqué dans les <a href="/legal/mentions-legales">mentions légales</a>.</div>
+      </section>
+
+      <section class="reveal" id="soutenir">
+        <div class="zn-join">
+          <div>
+            <h2>Soutenir Zenode</h2>
+            <p>Devenez adhérent·e pour voter en assemblée générale et vous engager dans la gouvernance. L'adhésion est distincte des offres d'hébergement.</p>
+          </div>
+          <div>
+            <div class="zn-price">10&nbsp;€<small> / an</small></div><p class="zn-source" style="margin-top:4px;">8&nbsp;€ / an pour les étudiants</p>
+            <a class="btn btn-primary btn-sm" style="margin-top:10px;" href="https://zenode.fr/association" target="_blank" rel="noopener">Adhérer <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a>
+          </div>
+        </div>
+        <div class="zn-links">
+          <a href="https://zenode.fr/docs" target="_blank" rel="noopener">Documentation</a>
+          <a href="https://github.com/ZenodeCie" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://www.youtube.com/@zenodeofficiel" target="_blank" rel="noopener">YouTube</a>
+          <a href="https://www.instagram.com/zenode.bot/" target="_blank" rel="noopener">Instagram</a>
+          <a href="https://buymeacoffee.com/factorybots" target="_blank" rel="noopener">Faire un don</a>
+          <a href="https://zenode.fr/contact" target="_blank" rel="noopener">Contacter Zenode</a>
+        </div>
+      </section>
+
+      <section class="reveal" id="contact">
+        <h2>Une question&nbsp;?</h2>
+        <p>Écris-nous à <a href="mailto:ozone-groupe@outlook.fr">ozone-groupe@outlook.fr</a> ou passe sur le <a href="https://discord.gg/yZ7w5r4Csm" target="_blank" rel="noopener">serveur Discord</a>.</p>
+        <p class="zn-source">Informations issues de <a href="https://zenode.fr" target="_blank" rel="noopener">zenode.fr</a> (novembre 2026). Pour les tarifs et conditions à jour, référez-vous à leur site.</p>
+        <p><a href="/">← Retour à l'accueil</a></p>
+      </section>
+    </div>
+  </main>
+
+
+  <footer class="wf-foot">
+    <div class="container">
+      <div class="wf-foot-grid">
+        <div>
+          <a class="brand" href="/"><img class="mark" src="/assets/logo.svg" alt="" width="30" height="30"><span>Ozone Groupe <span class="tm">™</span></span></a>
+          <p>Un groupe de bots Discord minimaliste, fiable et gratuit. Player 1, Player 2, Devcenter et Protect.</p>
+        </div>
+        <div><h4>Produits</h4><ul><li><a href="/#bots">Nos bots</a></li><li><a href="/ajouter">Ajouter un bot</a></li></ul></div>
+        <div><h4>Informations</h4><ul><li><a href="/legal">Informations légales</a></li><li><a href="/zenode">Hébergement des bots</a></li><li><a href="https://discord.gg/yZ7w5r4Csm" target="_blank" rel="noopener">Serveur Discord</a></li><li><a href="https://github.com/Joanoff/ozone-groupe" target="_blank" rel="noopener">GitHub</a></li></ul></div>
+      </div>
+      <div class="wf-foot-bottom"><span>© <span id="year">2026</span> Ozone Groupe ™. Tous droits réservés.</span><span>Discord n'est pas affilié à ce projet</span></div>
+    </div>
+  </footer>
+
+  <script src="/assets/script.js"></script>
+</body>
+</html>
