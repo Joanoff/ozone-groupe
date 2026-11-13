@@ -501,7 +501,9 @@
           h("span", { class: "mk" }, h("img", { src: "/assets/logo.svg", alt: "", width: "22", height: "22" })),
           h("span", { class: "tx" }, h("span", { class: "nm", text: "Ozone Groupe" }), h("span", { class: "sub", text: "Dashboard" }))),
         closeBtn),
-      h("a", { class: "dash-sideback", href: "/" }, icon(IC.back), h("span", { class: "lbl", text: "Retour au site" })),
+      h("div", { class: "dash-quick" },
+        h("a", { class: "dash-quick-btn", href: "/ajouter", title: "Ajouter un bot" }, icon(IC.plus), h("span", { class: "lbl", text: "Ajouter un bot" })),
+        h("a", { class: "dash-quick-ico", href: "/", title: "Retour au site", "aria-label": "Retour au site" }, icon(IC.back))),
       h("div", { class: "dash-side-head" },
         avatar("icons", g.id, g.icon, g.name, true),
         h("div", { class: "txt" }, h("strong", { text: g.name }), h("span", { class: "role" + (g.manage ? " mgr" : ""), text: g.manage ? "Gestionnaire" : "Membre" })),
@@ -538,9 +540,13 @@
     var burger = h("button", { class: "dash-burger", id: "dashBurger", type: "button", "aria-label": "Ouvrir le menu", "aria-controls": "dashSide", "aria-expanded": "false", onclick: function () { setNav(true); } }, icon(IC.menu));
     var top = h("header", { class: "dash-top" },
       burger,
+      h("button", { class: "dash-toggle top", type: "button", "aria-label": "Réduire ou ouvrir le menu", title: "Réduire le menu", onclick: function () { side.querySelector(".dash-toggle").click(); } }, icon(IC.panel)),
+      h("span", { class: "dash-top-sep", "aria-hidden": "true" }),
       h("div", { class: "dash-top-t" },
         h("h2", { class: "dash-top-title", text: TITLES[tab] })),
-      h("div", { class: "dash-top-r" }, themeBtn(), side.querySelector("#dashOnline"), avatar("avatars", u.id, u.avatar, u.username)));
+      h("div", { class: "dash-top-r" },
+        h("a", { class: "dash-gh", href: "https://github.com/Joanoff/ozone-groupe", target: "_blank", rel: "noopener", text: "GitHub" }),
+        themeBtn(), side.querySelector("#dashOnline"), avatar("avatars", u.id, u.avatar, u.username)));
     var sh = h("div", { class: "dash-shell" + (collapsed && !mobileQ.matches ? " collapsed" : "") }, side, h("div", { class: "dash-scrim", "aria-hidden": "true", onclick: function () { setNav(false); } }), h("div", { class: "dash-col" }, top, main));
     var lock = lockedFor(state.guild, tab);
     main.appendChild(lock ? lockCard(lock, tab) : tab === "overview" ? overviewView() : tab === "settings" ? settingsView() : tab === "protect" ? protectView() : tab === "embed" ? embedView() : tab === "playlists" ? playlistsView() : tab === "trending" ? trendingView() : liveView());
@@ -769,18 +775,28 @@
 
   function panel(title, hint, body, cls) {
     return h("section", { class: "dash-card panel " + (cls || "") },
-      h("div", { class: "panel-head" }, h("h3", { text: title }),
-        // hint = texte OU élément DOM (ex. la légende) : un élément passé dans « text » donnait « [object HTMLDivElement] »
-        hint ? (typeof hint === "object" && hint.nodeType ? hint : h("span", { class: "dash-muted", text: hint })) : null), body);
+      h("div", { class: "panel-head" },
+        h("div", { class: "ph-t" }, h("h3", { text: title }), hint && !(typeof hint === "object" && hint.nodeType) ? h("span", { class: "dash-muted", text: hint }) : null),
+        // hint = texte (sous le titre) OU élément DOM (ex. la légende, à droite)
+        hint && typeof hint === "object" && hint.nodeType ? hint : null), body);
   }
   function legend(items) {
     var box = h("div", { class: "legend" });
     items.forEach(function (i) { box.appendChild(h("span", {}, h("i", { style: "background:" + i[1] }), i[0])); });
     return box;
   }
+  IC.trendUp = '<path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/>';
+  IC.trendDown = '<path d="m22 17-8.5-8.5-5 5L2 7"/><path d="M16 17h6v-6"/>';
   function stat(label, value, sub, trend, color, ic) {
+    // Le pourcentage d'évolution passe dans une pastille en haut à droite de la carte.
+    var badge = null, d = sub && sub.querySelector ? sub.querySelector(".dash-delta") : null;
+    if (d && /\d|Nouveau/.test(d.textContent)) {
+      var dir = d.classList.contains("up") ? "up" : d.classList.contains("down") ? "down" : "";
+      badge = h("span", { class: "stat-badge " + dir }, dir ? icon(dir === "up" ? IC.trendUp : IC.trendDown, "ic") : null, d.textContent);
+      d.remove();
+    }
     return h("div", { class: "dash-card stat" },
-      h("div", { class: "stat-top" }, h("span", { class: "stat-label", text: label }), icon(IC[ic] || IC.overview, "stat-ic")),
+      h("div", { class: "stat-top" }, h("span", { class: "stat-label", text: label }), badge),
       h("div", { class: "stat-val", text: value }),
       h("div", { class: "stat-foot" }, sub, trend ? spark(trend, color) : null));
   }
@@ -816,7 +832,7 @@
     wrap.appendChild(h("div", { class: "ov-head" },
       h("div", {}, h("h2", { class: "dash-title", text: "Vue d'ensemble" }),
         h("p", { class: "dash-muted ov-sub" }, state.guild.name + " · ", stamp)),
-      h("div", { class: "ov-tools" }, seg, refreshBtn)));
+      h("div", { class: "ov-tools" }, refreshBtn)));
     wrap.appendChild(body);
 
     function paint(d) {
@@ -892,7 +908,8 @@
         tipFmt: function (v) { return v + " ms"; }, fmt: function (v) { return Math.round(v); }
       });
 
-      var grid = h("div", { class: "ov-grid" },
+      var grid;
+      grid = h("div", { class: "ov-grid" },
         panel("Évolution des membres", "Sur " + range + " jours", memChart, "span2"),
         panel("Présence", "En direct", presence),
         panel("Messages par jour", "Sur " + range + " jours", chart({ type: "bar", labels: labels, title: "Messages par jour", series: [{ name: "Messages", values: days.map(function (x) { return x.messages; }), color: COL.violet }] }), "span2"),
@@ -902,6 +919,8 @@
         panel("Vocal et musique", legend([["Heures d'écoute", COL.amber], ["Titres lus", COL.cyan]]),
           chart({ type: "bar", labels: labels, title: "Vocal et musique", series: [{ name: "Heures vocal", values: days.map(function (x) { return Math.round((x.voice_seconds / 3600) * 10) / 10; }), color: COL.amber }, { name: "Titres lus", values: days.map(function (x) { return x.tracks; }), color: COL.cyan }] })),
         panel("Performances du bot", d.bot.online ? "En ligne" : "Hors ligne ou en attente", perf, "span2"));
+      var firstHead = grid.querySelector(".panel-head");
+      if (firstHead) firstHead.appendChild(seg);
 
       body.replaceChildren.apply(body, [banner, cards, grid].filter(Boolean));
     }
