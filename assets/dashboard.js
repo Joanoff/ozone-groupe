@@ -1368,8 +1368,11 @@
 
     function trackRow(t, i, filtering) {
       var safe = /^https?:\/\//i.test(t.url);
-      return h("li", {},
+      var th = thumbOf(t);
+      var li = h("li", { class: "pl-row" },
+        filtering ? null : h("span", { class: "grip", title: "Glisser pour déplacer", "aria-hidden": "true" }, icon(IC.grip, "ic")),
         h("span", { class: "pos", text: String(i + 1) }),
+        th ? h("img", { class: "q-thumb", src: th, alt: "", width: 48, height: 48, loading: "lazy", referrerpolicy: "no-referrer" }) : h("span", { class: "q-thumb ph", "aria-hidden": "true" }, icon(IC.music, "ic")),
         h("div", { class: "info" }, safe
           ? h("a", { href: t.url, target: "_blank", rel: "noopener noreferrer", text: t.title })
           : h("span", { text: t.title }),
@@ -1393,6 +1396,21 @@
             busy(btn, function () { return api("/api/tracks", { guild: gid, playlist: p.id, action: "remove", track: t.id }); })
               .then(function () { return refresh(p.id); }, fail);
           })));
+      if (!filtering) {
+        li.addEventListener("dragstart", function (e) { e.preventDefault(); });
+        li.addEventListener("pointerdown", function (ev) {
+          dragSort(ev, li, tracks, i + 1, {
+            start: function () { tracks.classList.add("sorting"); },
+            drop: function (f, to) {
+              tracks.classList.remove("sorting");
+              var moved = p.tracks.splice(f - 1, 1)[0]; p.tracks.splice(to - 1, 0, moved);   // affichage immédiat, puis relecture serveur
+              api("/api/tracks", { guild: gid, playlist: p.id, action: "reorder", track: moved.id, to: to }).then(function () { return refresh(p.id); }, function (e) { fail(e); refresh(p.id); });
+            },
+            cancel: function () { tracks.classList.remove("sorting"); paintTracks(); }
+          });
+        });
+      }
+      return li;
     }
     function paintTracks() {
       var q = norm(filterIn.value.trim()), shown = 0, dur = 0;
@@ -1640,6 +1658,50 @@
     return card;
   }
 
+  // Glisser-déposer au pointeur pour réordonner une liste <ul> (souris, stylet ; au doigt uniquement depuis la poignée .grip).
+  // La ligne suit le curseur, un emplacement en pointillé se creuse. opts : start(), drop(from, to) (positions 1…n), cancel().
+  function dragSort(ev, li, list, from, opts) {
+    if (ev.button > 0 || ev.target.closest("button, input, select")) return;
+    var isGrip = !!ev.target.closest(".grip");
+    if (ev.pointerType === "touch" && !isGrip) return;      // au doigt, seule la poignée déplace (sinon on ne peut plus faire défiler)
+    var sx = ev.clientX, sy = ev.clientY, active = false, ph = null, off = 0, rect = null, cx = 0, cy = 0;
+    function items() { return [].filter.call(list.children, function (x) { return x !== li && x !== ph; }); }
+    function begin() {
+      active = true; opts.start();
+      rect = li.getBoundingClientRect(); off = sy - rect.top;
+      ph = h("li", { class: "q-ph", "aria-hidden": "true" }); ph.style.height = rect.height + "px";
+      list.insertBefore(ph, li);
+      li.classList.add("dragging");
+      li.style.cssText = "position:fixed;left:" + rect.left + "px;top:" + rect.top + "px;width:" + rect.width + "px;z-index:1000;pointer-events:none;";
+      document.body.classList.add("q-dragging");
+      // Si un parent crée son propre repère pour « fixed » (transform, filtre…), on mesure le décalage et on le compense.
+      var r2 = li.getBoundingClientRect(); cx = r2.left - rect.left; cy = r2.top - rect.top;
+      if (cx || cy) li.style.cssText += "left:" + (rect.left - cx) + "px;top:" + (rect.top - cy) + "px;";
+    }
+    function move(e) {
+      if (!active) { if (Math.abs(e.clientY - sy) + Math.abs(e.clientX - sx) < 5) return; begin(); }
+      e.preventDefault();
+      li.style.top = (e.clientY - off - cy) + "px";
+      var y = e.clientY, after = null;
+      items().some(function (x) { var r = x.getBoundingClientRect(); if (y < r.top + r.height / 2) { after = x; return true; } return false; });
+      if (after) { if (ph.nextSibling !== after) list.insertBefore(ph, after); } else if (list.lastChild !== ph) list.appendChild(ph);
+      if (e.clientY < 90) window.scrollBy(0, -14); else if (e.clientY > window.innerHeight - 120) window.scrollBy(0, 14);   // défilement en bord d'écran
+    }
+    function end(e) {
+      document.removeEventListener("pointermove", move); document.removeEventListener("pointerup", end); document.removeEventListener("pointercancel", end);
+      if (!active) return;
+      var to = [].filter.call(list.children, function (x) { return x !== li; }).indexOf(ph) + 1;
+      var stop = function (c) { c.preventDefault(); c.stopPropagation(); };   // un lien lâché après un glissement ne doit pas s'ouvrir
+      document.addEventListener("click", stop, { capture: true, once: true }); setTimeout(function () { document.removeEventListener("click", stop, true); }, 50);
+      li.style.cssText = ""; li.classList.remove("dragging"); document.body.classList.remove("q-dragging");
+      list.insertBefore(li, ph); ph.remove();
+      if (e.type !== "pointercancel" && to !== from) opts.drop(from, to); else opts.cancel();
+    }
+    document.addEventListener("pointermove", move, { passive: false });
+    document.addEventListener("pointerup", end);
+    document.addEventListener("pointercancel", end);
+  }
+
   // Miniature YouTube déduite du lien quand le bot n'en fournit pas.
   function ytThumb(url) {
     var m = /^https?:\/\/(?:www\.|m\.|music\.)?(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([\w-]{11})/i.exec(url || "");
@@ -1812,49 +1874,12 @@
         return h("button", { class: "dash-x", type: "button", title: title, "aria-label": title, disabled: disabled, onclick: function (ev) { fn(ev.currentTarget); } }, icon(IC[name], "ic"));
       }
       function startDrag(ev, li, from) {
-        if (ev.button > 0 || ev.target.closest("button, input, select")) return;
-        var isGrip = !!ev.target.closest(".grip");
-        if (ev.pointerType === "touch" && !isGrip) return;      // au doigt, seule la poignée déplace (sinon on ne peut plus faire défiler)
-        var sx = ev.clientX, sy = ev.clientY, active = false, ph = null, off = 0, rect = null, cx = 0, cy = 0;
-        function items() { return [].filter.call(list.children, function (x) { return x !== li && x !== ph; }); }
-        function begin() {
-          active = true; dragging = true;
-          rect = li.getBoundingClientRect(); off = sy - rect.top;
-          ph = h("li", { class: "q-ph", "aria-hidden": "true" }); ph.style.height = rect.height + "px";
-          list.insertBefore(ph, li);
-          li.classList.add("dragging");
-          li.style.cssText = "position:fixed;left:" + rect.left + "px;top:" + rect.top + "px;width:" + rect.width + "px;z-index:1000;pointer-events:none;";
-          document.body.classList.add("q-dragging");
-          // Si un parent crée son propre repère pour « fixed » (transform, filtre…), on mesure le décalage et on le compense.
-          var r2 = li.getBoundingClientRect(); cx = r2.left - rect.left; cy = r2.top - rect.top;
-          if (cx || cy) li.style.cssText += "left:" + (rect.left - cx) + "px;top:" + (rect.top - cy) + "px;";
-        }
-        function move(e) {
-          if (!active) { if (Math.abs(e.clientY - sy) + Math.abs(e.clientX - sx) < 5) return; begin(); }
-          e.preventDefault();
-          li.style.top = (e.clientY - off - cy) + "px";
-          var y = e.clientY, after = null;
-          items().some(function (x) { var r = x.getBoundingClientRect(); if (y < r.top + r.height / 2) { after = x; return true; } return false; });
-          if (after) { if (ph.nextSibling !== after) list.insertBefore(ph, after); } else if (list.lastChild !== ph) list.appendChild(ph);
-          if (e.clientY < 90) window.scrollBy(0, -14); else if (e.clientY > window.innerHeight - 120) window.scrollBy(0, 14);   // défilement en bord d'écran
-        }
-        function end(e) {
-          document.removeEventListener("pointermove", move); document.removeEventListener("pointerup", end); document.removeEventListener("pointercancel", end);
-          if (!active) return;
-          var to, order = [].filter.call(list.children, function (x) { return x !== li; });
-          to = order.indexOf(ph) + 1;
-          var stop = function (c) { c.preventDefault(); c.stopPropagation(); };   // un lien lâché après un glissement ne doit pas s'ouvrir
-          document.addEventListener("click", stop, { capture: true, once: true }); setTimeout(function () { document.removeEventListener("click", stop, true); }, 50);
-          li.style.cssText = ""; li.classList.remove("dragging"); document.body.classList.remove("q-dragging");
-          list.insertBefore(li, ph); ph.remove(); dragging = false;
-          lastSig = null;
-          if (e.type !== "pointercancel" && to !== from) move2(from, to); else paint();
-        }
-        document.addEventListener("pointermove", move, { passive: false });
-        document.addEventListener("pointerup", end);
-        document.addEventListener("pointercancel", end);
+        dragSort(ev, li, list, from, {
+          start: function () { dragging = true; },
+          drop: function (f, t) { dragging = false; lastSig = null; move(f, t); },
+          cancel: function () { dragging = false; lastSig = null; paint(); }
+        });
       }
-      function move2(from, to) { move(from, to); }
       st.queue.forEach(function (q, i) {
         var ok = /^https?:\/\//i.test(q.url || "");
         var pos = i + 1;
