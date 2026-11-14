@@ -40,21 +40,16 @@
   <link rel="stylesheet" href="/assets/dashboard-dark.css?v=1">
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/ambiance.css?v=1">
-  <link rel="stylesheet" href="/assets/dashboard-shadcn.css?v=1">
+  <link rel="stylesheet" href="/assets/dashboard-shadcn.css?v=2">
 </head>
 <body class="dash-page">
   <div id="boot" class="boot" role="status" aria-live="polite" aria-label="Chargement du dashboard">
+    <div class="boot-line" aria-hidden="true"><span class="boot-fill"></span></div>
     <div class="boot-in">
-      <div class="boot-logo" aria-hidden="true">
-        <span class="ring r1"></span><span class="ring r2"></span>
-        <span class="mk"><img src="/assets/logo.svg" alt="" width="34" height="34"></span>
-      </div>
-      <div class="boot-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-      <div class="boot-title">Ozone Groupe <sup>™</sup></div>
+      <img class="boot-mark" src="/assets/logo.svg" alt="" width="40" height="40">
       <p class="boot-msg">Connexion à Discord…</p>
-      <div class="boot-bar" aria-hidden="true"><span class="boot-fill"></span></div>
-      <span class="boot-pct" aria-hidden="true">0 %</span>
     </div>
+    <span class="boot-pct" aria-hidden="true">0 %</span>
   </div>
     <main class="container dash" id="app" aria-live="polite">
     <a class="dash-back" href="/">
