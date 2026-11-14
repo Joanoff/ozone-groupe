@@ -478,3 +478,10 @@ html[data-theme="dark"] .dash-page .dash-top { background: #0c0c0c; box-shadow: 
 .dash-page .pl-row .info a, .dash-page .pl-row .info span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .dash-page .pl-tracks .dash-tracks, .dash-page .pl-tracks .dash-tracks li.pl-row { margin-left: 0; margin-right: 0; }
 .dash-page .pl-tracks .dash-tracks { padding: 0; }
+
+/* Haut de page : le panneau touche le bord supérieur (plus de bande sombre ni de liseré au-dessus de la barre) */
+@media (min-width: 961px) {
+  .dash-page .dash-col { margin-top: 0; min-height: calc(100vh - 8px); border-top: 0; border-radius: 0 0 14px 14px; }
+  html[data-theme="dark"] .dash-page .dash-col { box-shadow: none; }
+  .dash-page .dash-top, html[data-theme="dark"] .dash-page .dash-top { border-radius: 0; box-shadow: none; }
+}
