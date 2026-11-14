@@ -3,6 +3,8 @@ const discord = require("./_lib/discord");
 const { route, send } = require("./_lib/http");
 
 module.exports = route(["GET"], async (req, res) => {
+  // ?soft=1 : visiteur non connecté → 200 {guest:true} (évite une erreur 401 dans la console du navigateur)
+  if (/(^|[?&])soft=1(&|$)/.test(req.url || "") && !(await session.get(req))) return send(res, 200, { guest: true });
   const s = await session.require(req);
   const [present, prot, p2] = await Promise.all([discord.botGuildIds(), discord.botGuildIds("PROTECT_BOT_TOKEN"), discord.botGuildIds("PLAYER2_BOT_TOKEN")]);
   send(res, 200, {
