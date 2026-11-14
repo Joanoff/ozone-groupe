@@ -467,3 +467,14 @@ html[data-theme="dark"] .dash-page .dash-top { background: #0c0c0c; box-shadow: 
 .dash-page .pl-row:hover .acts .dash-x, .dash-page .pl-row:focus-within .acts .dash-x { opacity: 1; }
 @media (hover: none) { .dash-page .pl-row .acts .dash-x { opacity: 1 !important; } }
 @media (max-width: 700px) { .dash-page .pl-row .grip { display: none; } }
+
+/* Playlists : titres à gauche (large), liste des playlists à droite ; les lignes ne dépassent plus de la carte */
+.dash-page .live:has(> .live-right .pl-list), .dash-page .live:has(.pl-side) { grid-template-columns: minmax(0, 1fr) minmax(300px, 420px); }
+.dash-page .live:has(.pl-list) > .live-left { min-width: 0; }
+.dash-page .pl-tracks, .dash-page .pl-tracks .dash-tracks { min-width: 0; width: 100%; }
+.dash-page .pl-tracks .dash-tracks { grid-template-columns: minmax(0, 1fr); }
+.dash-page .pl-tracks .dash-tracks li.pl-row { min-width: 0; }
+.dash-page .pl-row .info { min-width: 0; flex: 1; }
+.dash-page .pl-row .info a, .dash-page .pl-row .info span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dash-page .pl-tracks .dash-tracks, .dash-page .pl-tracks .dash-tracks li.pl-row { margin-left: 0; margin-right: 0; }
+.dash-page .pl-tracks .dash-tracks { padding: 0; }
