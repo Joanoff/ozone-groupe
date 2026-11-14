@@ -84,6 +84,28 @@
     return wrap;
   }
 
+  // Squelettes en forme du contenu à venir (remplacent les textes « Chargement… »)
+  function sk(cls) { return h("div", { class: "sk " + cls }); }
+  function skStats() {
+    var w = h("div", { class: "sk-wrap sk-flat", "aria-hidden": "true" }), g = h("div", { class: "sk-stats" });
+    for (var i = 0; i < 4; i++) g.appendChild(sk("sk-stat"));
+    w.appendChild(g); w.appendChild(sk("sk-chart")); return w;
+  }
+  function skPanels() {
+    var w = h("div", { class: "sk-wrap sk-flat", "aria-hidden": "true" });
+    w.appendChild(sk("sk-card")); w.appendChild(sk("sk-card sk-short")); w.appendChild(sk("sk-card")); return w;
+  }
+  function skLive() {
+    var w = h("div", { class: "sk-wrap sk-flat", "aria-hidden": "true" });
+    w.appendChild(sk("sk-pill")); w.appendChild(sk("sk-hero")); return w;
+  }
+  // Remplace le contenu d'un conteneur ; si c'était un squelette, les nouveaux blocs apparaissent en fondu, l'un après l'autre.
+  function swap(el, nodes) {
+    var wasSk = !!el.querySelector(".sk");
+    el.replaceChildren.apply(el, nodes);
+    if (wasSk) { el.classList.add("loaded"); setTimeout(function () { el.classList.remove("loaded"); }, 1100); }
+  }
+
   /* ---------- Utilitaires ---------- */
 
   // Construit un élément sans jamais passer par innerHTML (les noms/titres viennent des utilisateurs).
@@ -831,7 +853,7 @@
     var gid = state.guild.id;
     var range = state.range || 30;
     var wrap = h("div", { class: "ov" });
-    var body = h("div", { class: "ov-body" }, h("p", { class: "dash-muted", text: "Chargement des statistiques…" }));
+    var body = h("div", { class: "ov-body" }, skStats());
     var stamp = h("span", { class: "dash-muted ov-stamp" });
 
     var seg = h("div", { class: "dash-tabs", role: "group", "aria-label": "Période" });
@@ -937,7 +959,7 @@
       var firstHead = grid.querySelector(".panel-head");
       if (firstHead) firstHead.appendChild(seg);
 
-      body.replaceChildren.apply(body, [banner, cards, grid].filter(Boolean));
+      swap(body, [banner, cards, grid].filter(Boolean));
     }
 
     var busyLoad = false;
@@ -1005,7 +1027,7 @@
   }
 
   function protectView() {
-    var gid = state.guild.id, box = h("div", { class: "pt" }, h("p", { class: "dash-muted", text: "Chargement…" }));
+    var gid = state.guild.id, box = h("div", { class: "pt" }, skPanels());
     function post(extra) { extra.guild = gid; extra.scope = "protect"; return api("/api/settings", extra); }
     api("/api/settings?id=" + gid).then(function (d) {
       var s = d.settings, label = {};
@@ -1111,7 +1133,7 @@
         });
         hist.appendChild(h("div", { class: "pt-scroll" }, tbl));
       }
-      box.replaceChildren(general, mods, wl, hist);
+      swap(box, [general, mods, wl, hist]);
     }, function (e) {
       if (e.status === 401) return fail(e);
       box.replaceChildren(h("div", { class: "dash-card" }, h("h2", { text: "Protection" }), h("p", { class: "hint", text: e.message })));
@@ -1670,10 +1692,10 @@
     }
 
     function paintIdle() {
-      left.replaceChildren(switcher(), h("div", { class: "dash-card live-idle" },
+      swap(left, [switcher(), h("div", { class: "dash-card live-idle" },
         h("div", { class: "live-idle-ic" }, icon(IC.disc)),
         h("h2", { text: "Rien en cours" }),
-        h("p", { text: botName(state.botId) + " ne joue rien sur ce serveur pour le moment. Lance une musique depuis la carte à côté, ou sur Discord avec /play." })));
+        h("p", { text: botName(state.botId) + " ne joue rien sur ce serveur pour le moment. Lance une musique depuis la carte à côté, ou sur Discord avec /play." }))]);
       qBox.replaceChildren();
     }
 
@@ -1713,7 +1735,7 @@
         : h("span", { class: "ttl dim", text: "Aucun titre pour l'instant" });
 
       refs.pill = null;
-      left.replaceChildren(switcher(), h("div", { class: "dash-card live-hero" },
+      swap(left, [switcher(), h("div", { class: "dash-card live-hero" },
         bg,
         h("div", { class: "live-hero-in" },
           h("div", { class: "live-top" },
@@ -1732,7 +1754,7 @@
             round("stop", "Arrêter et déconnecter " + botName(state.botId), "danger", "stop", null, "Arrêter la musique et déconnecter " + botName(state.botId) + " ?")),
           h("div", { class: "live-opts" },
             h("div", { class: "live-vol" }, icon(IC[st.volume === 0 ? "volx" : "vol"], "ic"), range, num, h("span", { class: "dash-muted", text: "%" })),
-            loops))));
+            loops)))]);
       paintQueue(st);
       if (t) paintProgress();
     }
@@ -1861,7 +1883,7 @@
     stopLive();
     startStream();
     live.tick = setInterval(function () { if (live.st && live.st.active) paintProgress(); }, 1000);
-    left.appendChild(h("p", { class: "dash-muted", text: "Chargement…" }));
+    left.appendChild(skLive());
     wrap.appendChild(left);
     wrap.appendChild(h("div", { class: "live-right" }, launchCard(function () { setTimeout(load, 800); }), qBox));
     load();
