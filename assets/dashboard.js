@@ -220,6 +220,7 @@
       connexion: "Impossible de te connecter pour le moment, réessaie dans un instant."
     };
     document.getElementById("app").classList.add("in-login");
+    if (location.pathname.replace(/\/+$/, "") !== "/dashboard/login") history.replaceState(null, "", "/dashboard/login" + location.search);
     var btn = h("a", { class: "btn btn-primary login-btn", href: "/api/auth/login" }, icon(IC.login, "ic"), "Continuer avec Discord");
     var check = '<path d="m5 12 5 5L20 7"/>';
     var perk = function (t, d) { return h("li", null, icon(check, "ic"), h("span", null, h("b", { text: t }), " ", d)); };
@@ -1885,19 +1886,24 @@
     openGuild(g, tab, true);
   }
 
-  api("/api/me").then(function (me) {
+  var LOGIN_PATH = "/dashboard/login";
+  function showLogin() {
+    try { localStorage.removeItem(SEEN_KEY); } catch (x) { /* rien */ }
+    boot.skip();
+    if (location.pathname.replace(/\/+$/, "") !== LOGIN_PATH) history.replaceState(null, "", LOGIN_PATH + location.search);
+    renderLogin(params.get("erreur"));
+  }
+
+  api("/api/me?soft=1").then(function (me) {
+    if (me && me.guest) return showLogin();
     state.me = me;
     try { localStorage.setItem(SEEN_KEY, "1"); } catch (e) { /* stockage bloqué : pas de loader au prochain passage */ }
+    if (location.pathname.replace(/\/+$/, "") === LOGIN_PATH) history.replaceState(null, "", "/dashboard");   // déjà connecté : pas de page de connexion
     route();
     window.addEventListener("popstate", route);
     boot.done();
   }, function (e) {
-    if (e.status === 401) {
-      try { localStorage.removeItem(SEEN_KEY); } catch (x) { /* rien */ }
-      boot.skip();
-      renderLogin(params.get("erreur"));
-      return;
-    }
+    if (e.status === 401) return showLogin();
     boot.done();
     view.replaceChildren(h("div", { class: "dash-error", role: "alert", text: "Le dashboard est momentanément indisponible. Réessaie dans un instant." }));
   });
