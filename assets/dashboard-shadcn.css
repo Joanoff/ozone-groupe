@@ -485,3 +485,8 @@ html[data-theme="dark"] .dash-page .dash-top { background: #0c0c0c; box-shadow: 
   html[data-theme="dark"] .dash-page .dash-col { box-shadow: none; }
   .dash-page .dash-top, html[data-theme="dark"] .dash-page .dash-top { border-radius: 0; box-shadow: none; }
 }
+
+/* Mode clair : graphiques lisibles */
+html:not([data-theme="dark"]) .dash-page .chart-svg .grid { stroke: rgba(0, 0, 0, .08); }
+html:not([data-theme="dark"]) .donut-track { stroke: rgba(0, 0, 0, .08); }
+html:not([data-theme="dark"]) .dash-page .chart-svg .bar { opacity: .9; }
