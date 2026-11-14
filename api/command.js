@@ -1,6 +1,7 @@
 const db = require("./_lib/turso");
 const session = require("./_lib/session");
 const player = require("./_lib/player");
+const spotify = require("./_lib/spotify");
 const { route, send, HttpError } = require("./_lib/http");
 
 // Suivi d'un ordre envoyé au bot (recherches lentes) : GET /api/command?guild=…&id=…
@@ -8,6 +9,8 @@ module.exports = route(["GET"], async (req, res) => {
   const s = await session.require(req);
   const q = new URL(req.url, "http://x").searchParams;
   session.guildOf(s, q.get("guild"));
+  // GET /api/command?guild=…&spotify=<lien> : transforme un lien Spotify en recherches « Artiste - Titre » (voir _lib/spotify.js).
+  if (q.get("spotify")) return send(res, 200, await spotify.resolve(q.get("spotify")));
   const id = Number(q.get("id"));
   if (!Number.isInteger(id) || id <= 0) throw new HttpError(400, "Ordre invalide");
   await player.ensure();
