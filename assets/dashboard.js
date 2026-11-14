@@ -224,6 +224,25 @@
       .then(function (r) { clearTimeout(hint); return r; }, function (e) { clearTimeout(hint); throw e; });
   }
 
+  // Lien Spotify : le dashboard récupère « Artiste - Titre » (api/_lib/spotify.js) puis lance chaque titre comme une recherche.
+  var SPOTIFY_URL = /^https?:\/\/(open\.)?spotify\.com\//i;
+  function spotifyPlay(url, build) {
+    return api("/api/command?guild=" + state.guild.id + "&spotify=" + encodeURIComponent(url)).then(function (r) {
+      var list = r.tracks || [], i = 0, done = 0;
+      if (!list.length) throw new Error("Aucun titre trouvé sur ce lien Spotify");
+      function next() {
+        if (i >= list.length) return Promise.resolve({ ok: true, message: done + " titre" + (done > 1 ? "s" : "") + " lancé" + (done > 1 ? "s" : "") + (r.name && list.length > 1 ? " depuis « " + r.name + " »" : "") });
+        var t = list[i++];
+        if (list.length > 1) toast("Spotify : " + i + " / " + list.length + " — " + t.query);
+        return order(build ? build(t.query) : { action: "play", arg: t.query }).then(function () { done++; return next(); }, function (e) {
+          if (e.status === 409 || e.status === 429 || e.status === 401 || done === 0 && i === list.length) throw e;   // bot absent / trop d'ordres : on s'arrête
+          return next();   // un titre introuvable ne bloque pas les suivants
+        });
+      }
+      return next();
+    });
+  }
+
   function fail(e) {
     if (e.status === 401) { state.me = null; return renderLogin(); }
     toast(e.message || "Erreur", true);
@@ -1392,13 +1411,13 @@
     paintTracks();
 
     // Ajout par lien ou recherche : c'est le bot qui retrouve le titre, la durée et la miniature.
-    var query = h("input", { type: "text", maxlength: lim.QUERY_MAX, placeholder: "Lien YouTube ou mots-clés", "aria-label": "Lien ou recherche" });
+    var query = h("input", { type: "text", maxlength: lim.QUERY_MAX, placeholder: "Lien YouTube, Spotify ou mots-clés", "aria-label": "Lien ou recherche" });
     var addBtn = h("button", { class: "btn btn-primary btn-sm", type: "submit" }, "Ajouter");
     var addForm = h("form", {
       class: "live-search", onsubmit: function (ev) {
         ev.preventDefault();
         if (!query.value.trim()) return;
-        busy(addBtn, function () { return order({ action: "pl_add", playlist: p.id, query: query.value }); })
+        busy(addBtn, function () { var v = query.value.trim(); return SPOTIFY_URL.test(v) ? spotifyPlay(v, function (qr) { return { action: "pl_add", playlist: p.id, query: qr }; }) : order({ action: "pl_add", playlist: p.id, query: query.value }); })
           .then(function (r) { toast(r.message || "Titre ajouté"); return refresh(p.id); }, fail);
       }
     }, icon(IC.search), query, addBtn);
@@ -1582,18 +1601,18 @@
     '</svg>';
 
   function launchHint() {
-    return "Colle un lien ou tape des mots-clés. Si " + botName(state.botId) + " ne joue rien, rejoins d'abord un salon vocal : il viendra t'y retrouver.";
+    return "Colle un lien (YouTube, Spotify…) ou tape des mots-clés. Si " + botName(state.botId) + " ne joue rien, rejoins d'abord un salon vocal : il viendra t'y retrouver.";
   }
 
   // Carte « Lancer une musique » (construite une seule fois : elle garde ce que la personne tape)
   function launchCard(onDone) {
-    var q = h("input", { type: "text", maxlength: state.data.limits.QUERY_MAX, placeholder: "Lien YouTube ou mots-clés", "aria-label": "Lien ou recherche" });
+    var q = h("input", { type: "text", maxlength: state.data.limits.QUERY_MAX, placeholder: "Lien YouTube, Spotify ou mots-clés", "aria-label": "Lien ou recherche" });
     var go = h("button", { class: "btn btn-primary btn-sm", type: "submit" }, "Lancer");
     var form = h("form", {
       class: "live-search", onsubmit: function (ev) {
         ev.preventDefault();
         if (!q.value.trim()) return;
-        busy(go, function () { return order({ action: "play", arg: q.value }); })
+        busy(go, function () { var v = q.value.trim(); return SPOTIFY_URL.test(v) ? spotifyPlay(v) : order({ action: "play", arg: q.value }); })
           .then(function (r) { q.value = ""; toast(r.message || "Fait"); onDone(); }, fail);
       }
     }, icon(IC.search), q, go);
@@ -1625,7 +1644,9 @@
     var gid = state.guild.id, lim = state.data.limits;
     var wrap = h("div", { class: "live" });
     var left = h("div", { class: "live-left" });
-    var qBox = h("div", {});
+    var qBox = h("div", { class: "live-qbox" });
+    var dockBox = h("div", { class: "live-dock", hidden: true });
+    var sideTab = "queue", sidePicked = false, qCount = h("span", { class: "count", text: "0" });
     var refs = {};          // éléments mis à jour chaque seconde (barre, temps)
 
     // Quels bots musique sont sur ce serveur ? (inconnu = présent). Si Player 2 est absent, rien ne change par rapport à avant.
@@ -1697,6 +1718,8 @@
         h("h2", { text: "Rien en cours" }),
         h("p", { text: botName(state.botId) + " ne joue rien sur ce serveur pour le moment. Lance une musique depuis la carte à côté, ou sur Discord avec /play." }))]);
       qBox.replaceChildren();
+      dockBox.hidden = true; dockBox.replaceChildren();
+      if (!sidePicked) setSide("launch");
     }
 
     function paintActive(st) {
@@ -1723,7 +1746,7 @@
       });
 
       var loops = h("div", { class: "dash-tabs", role: "group", "aria-label": "Répétition" });
-      [["off", "Désactivée"], ["track", "Titre"], ["queue", "File"]].forEach(function (l) {
+      [["off", "Off"], ["track", "Titre"], ["queue", "File"]].forEach(function (l) {
         loops.appendChild(h("button", {
           class: "dash-tab", type: "button", "aria-pressed": String(st.loop === l[0]), "aria-selected": String(st.loop === l[0]),
           onclick: function (ev) { if (st.loop !== l[0]) send({ action: "loop", arg: l[0] }, ev.currentTarget); }
@@ -1733,28 +1756,37 @@
       var title = t
         ? (safeUrl ? h("a", { class: "ttl", href: t.url, target: "_blank", rel: "noopener noreferrer", text: t.title }) : h("span", { class: "ttl", text: t.title }))
         : h("span", { class: "ttl dim", text: "Aucun titre pour l'instant" });
+      var artist = t && t.uploader ? t.uploader : "";
 
       refs.pill = null;
-      swap(left, [switcher(), h("div", { class: "dash-card live-hero" },
+      swap(left, [switcher(), h("div", { class: "dash-card live-cover" },
         bg,
-        h("div", { class: "live-hero-in" },
+        h("div", { class: "live-cover-in" },
+          art,
+          h("div", { class: "live-meta" }, title, artist ? h("span", { class: "sub", text: artist }) : null),
           h("div", { class: "live-top" },
             h("span", { class: "dash-pill" + (st.paused ? " paused" : ""), text: st.paused ? "En pause" : "En lecture" }),
             h("span", { class: "eq" + (st.paused ? " paused" : ""), "aria-hidden": "true" }, h("i"), h("i"), h("i"), h("i")),
             st.channel ? h("span", { class: "live-chip" }, icon(IC.hash), st.channel) : null),
-          h("div", { class: "live-now" },
-            art,
-            h("div", { class: "live-meta" }, title,
-              t && t.uploader ? h("span", { class: "sub", text: t.uploader }) : null)),
-          t ? h("div", { class: "live-prog" }, refs.cur, bar, refs.dur) : null,
+          safeUrl ? h("a", { class: "btn btn-ghost btn-sm live-open", href: t.url, target: "_blank", rel: "noopener noreferrer" }, "Ouvrir le titre") : null))]);
+
+      var miniArt = hasImg
+        ? h("img", { class: "ld-art", src: t.thumbnail, alt: "", width: 48, height: 48, referrerpolicy: "no-referrer" })
+        : h("div", { class: "ld-art ph", "aria-hidden": "true" }, icon(IC.music));
+      dockBox.hidden = false;
+      dockBox.replaceChildren(h("div", { class: "ld-in" },
+        h("div", { class: "ld-now" }, miniArt,
+          h("div", { class: "ld-meta" }, h("b", { text: t ? t.title : "Aucun titre" }), artist ? h("small", { text: artist }) : null)),
+        h("div", { class: "ld-mid" },
           h("div", { class: "live-ctl" },
             round("shuffle", "Mélanger la file", "", "shuffle"),
             round(st.paused ? "play" : "pause", st.paused ? "Reprendre" : "Pause", "main", st.paused ? "resume" : "pause"),
             round("skip", "Titre suivant", "", "skip"),
             round("stop", "Arrêter et déconnecter " + botName(state.botId), "danger", "stop", null, "Arrêter la musique et déconnecter " + botName(state.botId) + " ?")),
-          h("div", { class: "live-opts" },
-            h("div", { class: "live-vol" }, icon(IC[st.volume === 0 ? "volx" : "vol"], "ic"), range, num, h("span", { class: "dash-muted", text: "%" })),
-            loops)))]);
+          t ? h("div", { class: "live-prog" }, refs.cur, bar, refs.dur) : null),
+        h("div", { class: "ld-end" },
+          h("div", { class: "live-vol" }, icon(IC[st.volume === 0 ? "volx" : "vol"], "ic"), range, num, h("span", { class: "dash-muted", text: "%" })),
+          loops)));
       paintQueue(st);
       if (t) paintProgress();
     }
@@ -1777,8 +1809,10 @@
         var li = h("li", { class: "q-item" },
           grip,
           h("span", { class: "pos", text: String(pos) }),
-          h("div", { class: "info" }, ok ? h("a", { href: q.url, target: "_blank", rel: "noopener noreferrer", text: q.title }) : h("span", { text: q.title })),
-          h("span", { class: "dur", text: fmt(q.duration) }),
+          /^https:\/\//i.test(q.thumbnail || "") ? h("img", { class: "q-thumb", src: q.thumbnail, alt: "", width: 48, height: 48, loading: "lazy", referrerpolicy: "no-referrer" }) : h("span", { class: "q-thumb ph", "aria-hidden": "true" }, icon(IC.music, "ic")),
+          h("div", { class: "info" },
+            ok ? h("a", { href: q.url, target: "_blank", rel: "noopener noreferrer", text: q.title }) : h("span", { text: q.title }),
+            h("small", { class: "q-sub", text: [q.uploader, q.duration ? fmt(q.duration) : ""].filter(Boolean).join(" · ") })),
           h("span", { class: "acts" },
             qbtn("up", "Monter « " + q.title + " »", function (b) { send({ action: "move", arg: { from: pos, to: pos - 1 } }, b); }, pos === 1),
             qbtn("down", "Descendre « " + q.title + " »", function (b) { send({ action: "move", arg: { from: pos, to: pos + 1 } }, b); }, pos === n),
@@ -1807,10 +1841,11 @@
         });
         list.appendChild(li);
       });
+      qCount.textContent = String(st.queue_len);
       var more = st.queue_len - st.queue.length;
       qBox.replaceChildren(h("div", { class: "dash-card live-queue-card" },
         h("div", { class: "dash-row" },
-          h("h3", { class: "grow" }, "File d'attente ", h("span", { class: "count", text: String(st.queue_len) })),
+          h("h3", { class: "grow" }, "Prochains titres"),
           st.queue_len ? h("button", {
             class: "dash-x", type: "button", title: "Vider la file", "aria-label": "Vider la file d'attente",
             onclick: function (ev) { send({ action: "clear" }, ev.currentTarget, "Vider la file d'attente ?"); }
@@ -1842,7 +1877,7 @@
     function apply(data) {
       live.players = data.players || []; live.st = pick(); live.at = Date.now();
       var el = document.activeElement;
-      if (!(el && left.contains(el) && el.tagName === "INPUT")) paint();
+      if (!(el && (left.contains(el) || dockBox.contains(el)) && el.tagName === "INPUT")) paint();
     }
     function load() {
       if (state.tab !== "live" || state.guild.id !== gid) return;
@@ -1884,8 +1919,23 @@
     startStream();
     live.tick = setInterval(function () { if (live.st && live.st.active) paintProgress(); }, 1000);
     left.appendChild(skLive());
+    var launch = launchCard(function () { setTimeout(load, 800); });
+    var tabs = h("div", { class: "live-tabs", role: "tablist" });
+    function tabBtn(key, label, ic, extra) {
+      var b = h("button", { class: "live-tab", type: "button", role: "tab", "data-tab": key, onclick: function () { sidePicked = true; setSide(key); } }, icon(ic, "ic"), label, extra || null);
+      tabs.appendChild(b); return b;
+    }
+    tabBtn("queue", "File d'attente ", IC.queue, qCount);
+    tabBtn("launch", "Lancer", IC.search);
+    function setSide(t) {
+      sideTab = t;
+      [].forEach.call(tabs.children, function (b) { var on = b.getAttribute("data-tab") === t; b.setAttribute("aria-selected", String(on)); b.classList.toggle("on", on); });
+      qBox.hidden = t !== "queue"; launch.hidden = t !== "launch";
+    }
+    setSide("queue");
     wrap.appendChild(left);
-    wrap.appendChild(h("div", { class: "live-right" }, launchCard(function () { setTimeout(load, 800); }), qBox));
+    wrap.appendChild(h("div", { class: "live-right" }, tabs, qBox, launch));
+    wrap.appendChild(dockBox);
     load();
     return wrap;
   }
