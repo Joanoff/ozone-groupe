@@ -277,3 +277,27 @@ html[data-theme="dark"] .boot-mark { background: #000; box-shadow: inset 0 0 0 1
 @keyframes bootIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 @keyframes bootBreath { 50% { transform: scale(.94); opacity: .8; } }
 @media (prefers-reduced-motion: reduce) { .boot-mark, .boot .boot-in { animation: none; } }
+
+/* =====================================================================
+   Squelettes + effet « chargé »
+   ===================================================================== */
+.dash-page .sk { border-radius: 12px; background: linear-gradient(90deg, var(--line) 25%, var(--bg-soft) 50%, var(--line) 75%); background-size: 200% 100%; }
+html[data-theme="dark"] .dash-page .sk { background: linear-gradient(90deg, #161616 25%, #202020 50%, #161616 75%); background-size: 200% 100%; }
+.dash-page .sk, html[data-theme="dark"] .dash-page .sk { animation: sk-shimmer 1.4s linear infinite; }
+.sk-wrap.sk-flat { padding: 0; gap: 16px; }
+.sk-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.sk-stat { height: 124px; border-radius: 14px; }
+.sk-chart { height: 300px; border-radius: 14px; }
+.sk-card { border-radius: 14px; }
+.sk-pill { height: 38px; width: 190px; border-radius: 10px; }
+.sk-hero { height: 360px; border-radius: 14px; }
+@media (max-width: 1180px) { .sk-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .sk-stats { grid-template-columns: 1fr; } .sk-chart { height: 220px; } }
+
+/* Les blocs réels arrivent en fondu, l'un après l'autre */
+@keyframes loadedIn { from { opacity: 0; transform: translateY(10px); filter: blur(3px); } to { opacity: 1; transform: none; filter: none; } }
+.loaded > * { animation: loadedIn .5s cubic-bezier(.2, .7, .2, 1) both; }
+.loaded > *:nth-child(2) { animation-delay: .06s; } .loaded > *:nth-child(3) { animation-delay: .12s; }
+.loaded > *:nth-child(4) { animation-delay: .18s; } .loaded > *:nth-child(n+5) { animation-delay: .24s; }
+.dash-page .dash-main > .ov, .dash-page .dash-main > .pt, .dash-page .dash-main > .live { animation: loadedIn .35s cubic-bezier(.2, .7, .2, 1) both; }
+@media (prefers-reduced-motion: reduce) { .loaded > *, .dash-page .dash-main > * { animation: none !important; } .dash-page .sk { animation: none; } }
