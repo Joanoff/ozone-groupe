@@ -43,7 +43,7 @@
       "destination": "/api/settings"
     },
     {
-      "source": "/dashboard/:tab(vue-ensemble|direct|du-moment|playlists|reglages|protection|createur-embed)",
+      "source": "/dashboard/:tab(vue-ensemble|direct|du-moment|playlists|reglages|protection|createur-embed|login)",
       "destination": "/dashboard"
     },
     {
@@ -52,6 +52,16 @@
     }
   ],
   "redirects": [
+    {
+      "source": "/login",
+      "destination": "/dashboard/login",
+      "permanent": false
+    },
+    {
+      "source": "/dashbaord/login",
+      "destination": "/dashboard/login",
+      "permanent": false
+    },
     {
       "source": "/conditions",
       "destination": "/legal/conditions",
