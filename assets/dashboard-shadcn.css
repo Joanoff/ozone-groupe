@@ -411,3 +411,19 @@ html[data-theme="dark"] .dash-page .live-dock { background: linear-gradient(180d
   .dash-page .live-cover-in { padding: 18px; gap: 10px; }
   .ld-end .live-vol { max-width: none; }
 }
+
+/* =====================================================================
+   Correctifs : file d'attente sans défilement interne, cartes des réglages, pied de page
+   ===================================================================== */
+.dash-page .live-queue { max-height: none; overflow: visible; padding-right: 0; }
+.dash-page .live-right .live-queue .q-item .acts { flex: none; }
+.dash-page .live.split .live-right { display: grid; gap: 16px; align-content: start; border: 0; border-radius: 0; background: none; overflow: visible; }
+.dash-page .live.split .live-left { min-width: 0; }
+
+/* Pied de page : même fond que le dashboard, aligné sur le panneau */
+body.dash-page { background: var(--dsb); }
+html[data-theme="dark"] body.dash-page { background: #0b0b0b; }
+.dash-page .site-footer, html[data-theme="dark"] .dash-page .site-footer { background: transparent; border: 0; padding: 12px 0 22px; }
+.dash-page .site-footer .footer-bottom { color: var(--muted-soft); }
+.dash-page .site-footer a { color: var(--muted); }
+.dash-page .site-footer a:hover { color: var(--text); }
