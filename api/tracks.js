@@ -65,5 +65,23 @@ module.exports = route(["POST"], async (req, res) => {
     ]);
     return send(res, 200, { ok: true });
   }
+  if (b.action === "reorder") {
+    // Glisser-déposer : place le titre à la position « to » (1…n) ; les positions restent consécutives.
+    const tid = Number(b.track), to = Number(b.to);
+    if (!Number.isInteger(tid) || tid <= 0) throw new HttpError(400, "Titre invalide");
+    const [{ n }] = await db.query("SELECT COUNT(*) AS n FROM playlist_tracks WHERE playlist_id = ?", [pid]);
+    if (!Number.isInteger(to) || to < 1 || to > n) throw new HttpError(400, "Position invalide");
+    const [cur] = await db.query("SELECT id, position FROM playlist_tracks WHERE id = ? AND playlist_id = ?", [tid, pid]);
+    if (!cur) throw new HttpError(404, "Titre introuvable");
+    if (cur.position === to) return send(res, 200, { ok: true });
+    const down = to > cur.position;   // vers la fin : les titres entre les deux remontent d'un cran, sinon ils descendent
+    await db.transaction([
+      ["UPDATE playlist_tracks SET position = -1 WHERE id = ? AND playlist_id = ?", [cur.id, pid]],
+      [`UPDATE playlist_tracks SET position = position ${down ? "-" : "+"} 1 WHERE playlist_id = ? AND position BETWEEN ? AND ?`,
+        [pid, Math.min(cur.position, to) + (down ? 1 : 0), Math.max(cur.position, to) - (down ? 0 : 1)]],
+      ["UPDATE playlist_tracks SET position = ? WHERE id = ? AND playlist_id = ?", [to, cur.id, pid]],
+    ]);
+    return send(res, 200, { ok: true });
+  }
   throw new HttpError(400, "Action inconnue");
 });
