@@ -1,7 +1,3 @@
-// Liens Spotify → liste de recherches « Artiste - Titre » que le bot sait déjà lancer (il cherche l'audio lui-même).
-// Spotify ne fournit pas l'audio : on ne récupère que les noms des titres.
-//  • Sans clé : un titre seul (lecture des métadonnées publiques de la page).
-//  • Avec SPOTIFY_CLIENT_ID + SPOTIFY_CLIENT_SECRET (Vercel > Settings > Environment Variables) : titres, albums et playlists.
 const { HttpError } = require("./http");
 
 const MAX_TRACKS = 25;
@@ -50,13 +46,35 @@ function fromHtml(html) {
   return title ? item(title, artist) : null;
 }
 
+// Sans clé : page « embed » publique d'une playlist ou d'un album (JSON __NEXT_DATA__). Non officiel : peut cesser de fonctionner si Spotify la modifie.
+function findTrackList(node, depth = 0) {
+  if (!node || typeof node !== "object" || depth > 12) return null;
+  if (Array.isArray(node.trackList) && node.trackList.length) return node;
+  for (const k of Object.keys(node)) { const r = findTrackList(node[k], depth + 1); if (r) return r; }
+  return null;
+}
+function fromEmbed(html) {
+  const m = html.match(/<script[^>]+id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/i);
+  if (!m) return null;
+  let data; try { data = JSON.parse(m[1]); } catch { return null; }
+  const ent = findTrackList(data);
+  if (!ent) return null;
+  const tracks = ent.trackList.filter((t) => t && t.title).slice(0, MAX_TRACKS).map((t) => item(t.title, t.subtitle));
+  return tracks.length ? { name: clean(ent.name || ent.title || ""), total: ent.trackList.length, tracks } : null;
+}
+
 async function resolve(url) {
   const p = parse(url);
   if (!p) throw new HttpError(400, "Lien Spotify invalide");
   const tok = await accessToken();
 
   if (!tok) {
-    if (p.kind !== "track") throw new HttpError(501, "Les albums et playlists Spotify demandent des clés API (voir la documentation du dashboard)");
+    if (p.kind !== "track") {
+      const r = await fetch("https://open.spotify.com/embed/" + p.kind + "/" + p.id, { headers: { "User-Agent": "Mozilla/5.0 (compatible; OzoneBot)", "Accept-Language": "en" }, signal: AbortSignal.timeout(8000) }).catch(() => null);
+      const e = r && r.ok ? fromEmbed(await r.text()) : null;
+      if (!e) throw new HttpError(502, "Impossible de lire cette " + (p.kind === "album" ? "album" : "playlist") + " Spotify (est-elle publique ?)");
+      return { kind: p.kind, name: e.name, total: e.total, tracks: e.tracks };
+    }
     const r = await fetch("https://open.spotify.com/track/" + p.id, { headers: { "User-Agent": "Mozilla/5.0 (compatible; OzoneBot)", "Accept-Language": "en" }, signal: AbortSignal.timeout(6000) }).catch(() => null);
     if (!r || !r.ok) throw new HttpError(502, "Impossible de lire ce titre Spotify");
     const t = fromHtml(await r.text());
@@ -79,4 +97,4 @@ async function resolve(url) {
   return { kind: "playlist", name: pl.name, total: (pl.tracks && pl.tracks.total) || items.length, tracks: items };
 }
 
-module.exports = { parse, resolve, fromHtml, MAX_TRACKS };
+module.exports = { parse, resolve, fromHtml, fromEmbed, MAX_TRACKS };
