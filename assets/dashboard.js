@@ -220,19 +220,33 @@
       connexion: "Impossible de te connecter pour le moment, réessaie dans un instant."
     };
     document.getElementById("app").classList.add("in-login");
-    var art = h("div", { class: "login-art", "aria-hidden": "true" });
-    art.innerHTML = LOGIN_ART;
-    var btn = h("a", { class: "btn btn-primary login-btn", href: "/api/auth/login" }, icon(IC.login, "ic"), "Se connecter via Discord");
+    var btn = h("a", { class: "btn btn-primary login-btn", href: "/api/auth/login" }, icon(IC.login, "ic"), "Continuer avec Discord");
+    var check = '<path d="m5 12 5 5L20 7"/>';
+    var perk = function (t, d) { return h("li", null, icon(check, "ic"), h("span", null, h("b", { text: t }), " ", d)); };
+    var bar = function (cls) { return h("i", { class: "lp-bar " + cls }); };
+    var peek = h("div", { class: "login-peek", "aria-hidden": "true" },
+      h("div", { class: "lp-head" }, h("span", { class: "lp-dot" }), h("span", { text: "En lecture · Player 1" })),
+      h("div", { class: "lp-now" }, h("span", { class: "lp-art" }, icon(IC.music || check, "ic")), h("div", null, h("b", { text: "Ton prochain titre" }), h("small", { text: "Contrôle la musique depuis le web" }))),
+      h("div", { class: "lp-prog" }, bar("a")),
+      h("div", { class: "lp-eq" }, bar("e1"), bar("e2"), bar("e3"), bar("e4"), bar("e5"), bar("e6"), bar("e7")));
     view.replaceChildren(h("div", { class: "login" },
+      h("div", { class: "login-copy" },
+        h("a", { class: "login-logo", href: "/", "aria-label": "Ozone Groupe" }, h("img", { src: "/assets/logo.svg", alt: "", width: "26", height: "26" }), h("span", { text: "Ozone Groupe ™" })),
+        h("h1", null, "Ta musique,", h("br"), h("span", { class: "dim", text: "sous contrôle." })),
+        h("p", { class: "lead", text: "Lance, mets en pause, gère la file d'attente et les playlists de Player 1 depuis ton navigateur." }),
+        peek),
       h("div", { class: "login-col" },
-        h("a", { class: "login-logo", href: "/", "aria-label": "Ozone Groupe" }, h("img", { src: "/assets/logo.svg", alt: "", width: "26", height: "26" })),
         h("div", { class: "dash-card dash-login" },
           errCode && messages[errCode] ? h("div", { class: "dash-error", role: "alert", text: messages[errCode] }) : null,
           h("h2", { text: "Connexion" }),
-          h("p", { text: "Nous lisons uniquement ton identité et la liste de tes serveurs. Rien n'est publié sur ton compte." }),
-          btn),
-        h("p", { class: "login-note" }, "Player 1 n'est pas encore sur ton serveur ? ", h("a", { href: "/ajouter" }, "Ajouter le bot"))),
-      art));
+          h("p", { text: "Connecte-toi avec ton compte Discord pour accéder à tes serveurs." }),
+          btn,
+          h("ul", { class: "login-perks" },
+            perk("Lecture seule.", "Nous lisons ton identité et la liste de tes serveurs."),
+            perk("Rien n'est publié", "sur ton compte."),
+            perk("Déconnexion", "possible à tout moment.")),
+          h("p", { class: "login-note" }, "Player 1 n'est pas encore sur ton serveur ? ", h("a", { href: "/ajouter" }, "Ajouter le bot"))),
+        h("a", { class: "login-back", href: "/" }, "← Retour au site"))));
   }
 
   /* ---------- Liste des serveurs ---------- */
