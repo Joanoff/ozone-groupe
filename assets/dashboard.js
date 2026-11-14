@@ -303,11 +303,14 @@
     b.setAttribute("title", label); b.setAttribute("aria-label", label); b.setAttribute("aria-pressed", String(dark));
   }
   function applyTheme(t) {
+    var changed = currentTheme() !== t;
     if (t === "dark") document.documentElement.setAttribute("data-theme", "dark"); else document.documentElement.removeAttribute("data-theme");
     var m = document.querySelector('meta[name="theme-color"]');
     if (m) m.setAttribute("content", t === "dark" ? "#0a0a0a" : "#ffffff");
     try { localStorage.setItem(THEME_KEY, t); } catch (e) { /* stockage bloqué : le choix vaut pour cette visite seulement */ }
     [].forEach.call(document.querySelectorAll(".theme-btn"), paintThemeBtn);
+    // Les graphiques (SVG) gardent les couleurs du thème au moment où ils sont dessinés : on les redessine quand le thème change.
+    if (changed && state.guild && state.data) renderGuild(true);
   }
   function themeBtn() {
     var b = h("button", { class: "theme-btn", type: "button", onclick: function () { applyTheme(currentTheme() === "dark" ? "light" : "dark"); } });
@@ -717,7 +720,7 @@
 
   // Graphique en courbe (aire) ou en barres. Un seul écouteur de survol par graphique.
   function chart(o) {
-    var W = 640, H = 230, L = 44, R = 12, T = 12, B = 28, pw = W - L - R, ph = H - T - B;
+    var W = o.W || 640, H = o.H || 230, L = 44, R = 12, T = 12, B = 28, pw = W - L - R, ph = H - T - B;
     var n = o.labels.length, bars = o.type === "bar";
     var all = [];
     o.series.forEach(function (se) { se.values.forEach(function (x) { if (x != null) all.push(x); }); });
@@ -945,7 +948,7 @@
         ? h("div", { class: "donut" }, donut([{ value: online, color: COL.green }, { value: Math.max(0, membersNow - online), color: "rgba(128,128,128,.28)" }], num(online), "en ligne"),
           h("ul", { class: "donut-legend" },
             h("li", {}, h("i", { style: "background:" + COL.green }), "En ligne", h("b", { text: num(online) })),
-            h("li", {}, h("i", { style: "background:rgba(255,255,255,.3)" }), "Hors ligne", h("b", { text: num(membersNow - online) })),
+            h("li", {}, h("i", { style: "background:rgba(128,128,128,.45)" }), "Hors ligne", h("b", { text: num(membersNow - online) })),
             live.boosts ? h("li", {}, h("i", { style: "background:" + COL.pink }), "Boosts (niv. " + live.tier + ")", h("b", { text: num(live.boosts) })) : null))
         : h("p", { class: "dash-empty", text: "Renseigne DISCORD_BOT_TOKEN côté site pour afficher les membres en ligne." });
 
@@ -953,7 +956,7 @@
       var hasProfile = d.profile.some(function (x) { return x > 0; });
       var hourLabels = d.profile.map(function (_, i) { return i + " h"; });
       var activity = chart({
-        type: "bar", labels: hourLabels, ticks: 7, title: "Activité par heure",
+        type: "bar", W: 360, H: 230, labels: hourLabels, ticks: 7, title: "Activité par heure",
         peak: hasProfile ? peak : null,
         series: [{ name: "Messages (7 j)", values: d.profile, color: COL.violet }]
       });
@@ -970,10 +973,10 @@
         panel("Présence", "En direct", presence),
         panel("Messages par jour", "Sur " + range + " jours", chart({ type: "bar", labels: labels, title: "Messages par jour", series: [{ name: "Messages", values: days.map(function (x) { return x.messages; }), color: COL.violet }] }), "span2"),
         panel("Heures d'activité", hasProfile ? "Pic vers " + peak + " h" : "7 derniers jours", activity),
-        panel("Arrivées et départs", legend([["Arrivées", COL.green], ["Départs", COL.pink]]),
-          chart({ type: "bar", labels: labels, title: "Arrivées et départs", series: [{ name: "Arrivées", values: days.map(function (x) { return x.joins; }), color: COL.green }, { name: "Départs", values: days.map(function (x) { return x.leaves; }), color: COL.pink }] }), "span2"),
+        panel("Arrivées et départs", legend([["Arrivées", COL.green], ["Départs", COL.cyan]]),
+          chart({ type: "bar", labels: labels, title: "Arrivées et départs", series: [{ name: "Arrivées", values: days.map(function (x) { return x.joins; }), color: COL.green }, { name: "Départs", values: days.map(function (x) { return x.leaves; }), color: COL.cyan }] }), "span2"),
         panel("Vocal et musique", legend([["Heures d'écoute", COL.amber], ["Titres lus", COL.cyan]]),
-          chart({ type: "bar", labels: labels, title: "Vocal et musique", series: [{ name: "Heures vocal", values: days.map(function (x) { return Math.round((x.voice_seconds / 3600) * 10) / 10; }), color: COL.amber }, { name: "Titres lus", values: days.map(function (x) { return x.tracks; }), color: COL.cyan }] })),
+          chart({ type: "bar", W: 360, H: 230, labels: labels, title: "Vocal et musique", series: [{ name: "Heures vocal", values: days.map(function (x) { return Math.round((x.voice_seconds / 3600) * 10) / 10; }), color: COL.amber }, { name: "Titres lus", values: days.map(function (x) { return x.tracks; }), color: COL.cyan }] })),
         panel("Performances du bot", d.bot.online ? "En ligne" : "Hors ligne ou en attente", perf, "span2"));
       var firstHead = grid.querySelector(".panel-head");
       if (firstHead) firstHead.appendChild(seg);
