@@ -1653,6 +1653,7 @@
     var left = h("div", { class: "live-left" });
     var qBox = h("div", { class: "live-qbox" });
     var dockBox = h("div", { class: "live-dock", hidden: true });
+    var dragging = false;   // pendant un glisser-déposer on ne reconstruit pas la file
     var sideTab = "queue", sidePicked = false, qCount = h("span", { class: "count", text: "0" });
     var refs = {};          // éléments mis à jour chaque seconde (barre, temps)
 
@@ -1810,6 +1811,50 @@
       function qbtn(name, title, fn, disabled) {
         return h("button", { class: "dash-x", type: "button", title: title, "aria-label": title, disabled: disabled, onclick: function (ev) { fn(ev.currentTarget); } }, icon(IC[name], "ic"));
       }
+      function startDrag(ev, li, from) {
+        if (ev.button > 0 || ev.target.closest("button, input, select")) return;
+        var isGrip = !!ev.target.closest(".grip");
+        if (ev.pointerType === "touch" && !isGrip) return;      // au doigt, seule la poignée déplace (sinon on ne peut plus faire défiler)
+        var sx = ev.clientX, sy = ev.clientY, active = false, ph = null, off = 0, rect = null, cx = 0, cy = 0;
+        function items() { return [].filter.call(list.children, function (x) { return x !== li && x !== ph; }); }
+        function begin() {
+          active = true; dragging = true;
+          rect = li.getBoundingClientRect(); off = sy - rect.top;
+          ph = h("li", { class: "q-ph", "aria-hidden": "true" }); ph.style.height = rect.height + "px";
+          list.insertBefore(ph, li);
+          li.classList.add("dragging");
+          li.style.cssText = "position:fixed;left:" + rect.left + "px;top:" + rect.top + "px;width:" + rect.width + "px;z-index:1000;pointer-events:none;";
+          document.body.classList.add("q-dragging");
+          // Si un parent crée son propre repère pour « fixed » (transform, filtre…), on mesure le décalage et on le compense.
+          var r2 = li.getBoundingClientRect(); cx = r2.left - rect.left; cy = r2.top - rect.top;
+          if (cx || cy) li.style.cssText += "left:" + (rect.left - cx) + "px;top:" + (rect.top - cy) + "px;";
+        }
+        function move(e) {
+          if (!active) { if (Math.abs(e.clientY - sy) + Math.abs(e.clientX - sx) < 5) return; begin(); }
+          e.preventDefault();
+          li.style.top = (e.clientY - off - cy) + "px";
+          var y = e.clientY, after = null;
+          items().some(function (x) { var r = x.getBoundingClientRect(); if (y < r.top + r.height / 2) { after = x; return true; } return false; });
+          if (after) { if (ph.nextSibling !== after) list.insertBefore(ph, after); } else if (list.lastChild !== ph) list.appendChild(ph);
+          if (e.clientY < 90) window.scrollBy(0, -14); else if (e.clientY > window.innerHeight - 120) window.scrollBy(0, 14);   // défilement en bord d'écran
+        }
+        function end(e) {
+          document.removeEventListener("pointermove", move); document.removeEventListener("pointerup", end); document.removeEventListener("pointercancel", end);
+          if (!active) return;
+          var to, order = [].filter.call(list.children, function (x) { return x !== li; });
+          to = order.indexOf(ph) + 1;
+          var stop = function (c) { c.preventDefault(); c.stopPropagation(); };   // un lien lâché après un glissement ne doit pas s'ouvrir
+          document.addEventListener("click", stop, { capture: true, once: true }); setTimeout(function () { document.removeEventListener("click", stop, true); }, 50);
+          li.style.cssText = ""; li.classList.remove("dragging"); document.body.classList.remove("q-dragging");
+          list.insertBefore(li, ph); ph.remove(); dragging = false;
+          lastSig = null;
+          if (e.type !== "pointercancel" && to !== from) move2(from, to); else paint();
+        }
+        document.addEventListener("pointermove", move, { passive: false });
+        document.addEventListener("pointerup", end);
+        document.addEventListener("pointercancel", end);
+      }
+      function move2(from, to) { move(from, to); }
       st.queue.forEach(function (q, i) {
         var ok = /^https?:\/\//i.test(q.url || "");
         var pos = i + 1;
@@ -1826,27 +1871,9 @@
             qbtn("down", "Descendre « " + q.title + " »", function (b) { send({ action: "move", arg: { from: pos, to: pos + 1 } }, b); }, pos === n),
             qbtn("close", "Retirer « " + q.title + " » de la file", function (b) { send({ action: "remove", arg: pos }, b); })));
 
-        // Glisser-déposer (souris) : on n'active le glissement que depuis la poignée, pour ne pas gêner la sélection du texte.
-        grip.addEventListener("mousedown", function () { li.draggable = true; });
-        li.addEventListener("dragstart", function (e) {
-          dragFrom = pos; li.classList.add("dragging");
-          e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", String(pos));
-        });
-        li.addEventListener("dragend", function () {
-          dragFrom = null; li.draggable = false; li.classList.remove("dragging");
-          [].forEach.call(list.children, function (x) { x.classList.remove("drop-before", "drop-after"); });
-        });
-        li.addEventListener("dragover", function (e) {
-          if (dragFrom == null) return;
-          e.preventDefault(); e.dataTransfer.dropEffect = "move";
-          [].forEach.call(list.children, function (x) { x.classList.remove("drop-before", "drop-after"); });
-          li.classList.add(dragFrom > pos ? "drop-before" : "drop-after");
-        });
-        li.addEventListener("drop", function (e) {
-          e.preventDefault();
-          var from = dragFrom; dragFrom = null;
-          if (from != null) move(from, pos);
-        });
+        // Glisser-déposer au pointeur (souris, stylet, doigt via la poignée) : la ligne suit le curseur, un emplacement se creuse dans la file.
+        li.addEventListener("dragstart", function (e) { e.preventDefault(); });   // pas de glisser natif (liens, images)
+        li.addEventListener("pointerdown", function (ev) { startDrag(ev, li, pos); });
         list.appendChild(li);
       });
       qCount.textContent = String(st.queue_len);
@@ -1873,6 +1900,7 @@
     }
     function paint() {
       var st = live.st, sig = signature(st);
+      if (dragging) return;
       if (sig === lastSig) return paintProgress();   // rien de nouveau : on ne touche pas au DOM
       lastSig = sig;
       refs = {};
