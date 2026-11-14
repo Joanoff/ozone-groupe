@@ -301,3 +301,28 @@ html[data-theme="dark"] .dash-page .sk { background: linear-gradient(90deg, #161
 .loaded > *:nth-child(4) { animation-delay: .18s; } .loaded > *:nth-child(n+5) { animation-delay: .24s; }
 .dash-page .dash-main > .ov, .dash-page .dash-main > .pt, .dash-page .dash-main > .live { animation: loadedIn .35s cubic-bezier(.2, .7, .2, 1) both; }
 @media (prefers-reduced-motion: reduce) { .loaded > *, .dash-page .dash-main > * { animation: none !important; } .dash-page .sk { animation: none; } }
+
+/* =====================================================================
+   Dégradés (mode sombre surtout)
+   ===================================================================== */
+html[data-theme="dark"] .dash-page { --dsb: #0e0e0e; }
+html[data-theme="dark"] .dash-page .dash-shell { background: linear-gradient(180deg, #131313 0%, #0b0b0b 100%); }
+html[data-theme="dark"] .dash-page .dash-col { background: radial-gradient(1100px 380px at 50% -120px, rgba(255, 255, 255, .075), transparent 70%), linear-gradient(180deg, #0f0f0f 0%, #080808 100%); border-color: #1f1f1f; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05); }
+html[data-theme="dark"] .dash-page .dash-top { background: linear-gradient(180deg, rgba(255, 255, 255, .035), rgba(255, 255, 255, 0) 100%), #0c0c0c; backdrop-filter: blur(8px); }
+html[data-theme="dark"] .dash-page .stat,
+html[data-theme="dark"] .dash-page .dash-card,
+html[data-theme="dark"] .dash-page .panel,
+html[data-theme="dark"] .dash-page .live-hero,
+html[data-theme="dark"] .dash-page .live-idle { background: radial-gradient(420px 160px at 0% 0%, rgba(255, 255, 255, .06), transparent 70%), linear-gradient(160deg, #181818 0%, #0d0d0d 70%); border-color: #232323; box-shadow: inset 0 1px 0 rgba(255, 255, 255, .05); }
+html[data-theme="dark"] .dash-page .stat-val { background-image: linear-gradient(180deg, #ffffff 30%, #8a8a8a 130%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html[data-theme="dark"] .dash-page .dash-top-title, html[data-theme="dark"] .dash-page .set-vol-big { background-image: linear-gradient(180deg, #ffffff 30%, #8e8e8e 130%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+html[data-theme="dark"] .dash-page .dash-navbtn[aria-current="page"] { background: linear-gradient(90deg, rgba(255, 255, 255, .10), rgba(255, 255, 255, .02)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06); }
+html[data-theme="dark"] .dash-page .dash-quick-btn, html[data-theme="dark"] .dash-page .login-btn,
+html[data-theme="dark"] .dash-page .btn-primary { background: linear-gradient(180deg, #ffffff, #cfcfcf); box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset, 0 8px 24px -12px rgba(255, 255, 255, .35); }
+html[data-theme="dark"] .dash-page .live-btn.main { background: linear-gradient(180deg, #ffffff, #cfcfcf); }
+html[data-theme="dark"] .dash-page .lp-bar.a, html[data-theme="dark"] .dash-page .live-bar .fill { background: linear-gradient(90deg, #7a7a7a, #ffffff); }
+html[data-theme="dark"] .dash-page .login::after { content: ""; position: absolute; inset: 0 -50vw; z-index: -2; pointer-events: none; background: radial-gradient(50% 45% at 30% 30%, rgba(255, 255, 255, .08), transparent 70%); }
+html[data-theme="dark"] .dash-page .dash-login { background: radial-gradient(360px 140px at 0% 0%, rgba(255, 255, 255, .07), transparent 70%), linear-gradient(160deg, #181818, #0b0b0b 75%); }
+/* Mode clair : un voile à peine visible */
+html:not([data-theme="dark"]) .dash-page .dash-col { background: radial-gradient(1000px 300px at 50% -100px, rgba(0, 0, 0, .035), transparent 70%), #ffffff; }
+html:not([data-theme="dark"]) .dash-page .stat-val { background-image: linear-gradient(180deg, #0a0a0a 30%, #6a6a6a 130%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
