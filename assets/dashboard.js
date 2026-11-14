@@ -1640,6 +1640,13 @@
     return card;
   }
 
+  // Miniature YouTube déduite du lien quand le bot n'en fournit pas.
+  function ytThumb(url) {
+    var m = /^https?:\/\/(?:www\.|m\.|music\.)?(?:youtube\.com\/(?:watch\?(?:[^#]*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([\w-]{11})/i.exec(url || "");
+    return m ? "https://i.ytimg.com/vi/" + m[1] + "/mqdefault.jpg" : "";
+  }
+  function thumbOf(x) { return x && /^https:\/\//i.test(x.thumbnail || "") ? x.thumbnail : ytThumb(x && x.url); }
+
   function liveView() {
     var gid = state.guild.id, lim = state.data.limits;
     var wrap = h("div", { class: "live" });
@@ -1725,11 +1732,12 @@
     function paintActive(st) {
       var t = st.track;
       var safeUrl = t && /^https?:\/\//i.test(t.url || "");
-      var hasImg = t && t.thumbnail && /^https:\/\//i.test(t.thumbnail);
+      var tThumb = t ? thumbOf(t) : "";
+      var hasImg = !!tThumb;
       var art = hasImg
-        ? h("img", { class: "live-art", src: t.thumbnail, alt: "", width: 176, height: 176, referrerpolicy: "no-referrer" })
+        ? h("img", { class: "live-art", src: tThumb, alt: "", width: 176, height: 176, referrerpolicy: "no-referrer" })
         : h("div", { class: "live-art ph", "aria-hidden": "true" }, icon(IC.music));
-      var bg = hasImg ? h("img", { class: "live-bg", src: t.thumbnail, alt: "", "aria-hidden": "true", referrerpolicy: "no-referrer" }) : null;
+      var bg = hasImg ? h("img", { class: "live-bg", src: tThumb, alt: "", "aria-hidden": "true", referrerpolicy: "no-referrer" }) : null;
 
       refs.fill = h("div", { class: "fill" }, h("i", { class: "knob" }));
       refs.cur = h("span", { text: "0:00" });
@@ -1771,7 +1779,7 @@
           safeUrl ? h("a", { class: "btn btn-ghost btn-sm live-open", href: t.url, target: "_blank", rel: "noopener noreferrer" }, "Ouvrir le titre") : null))]);
 
       var miniArt = hasImg
-        ? h("img", { class: "ld-art", src: t.thumbnail, alt: "", width: 48, height: 48, referrerpolicy: "no-referrer" })
+        ? h("img", { class: "ld-art", src: tThumb, alt: "", width: 48, height: 48, referrerpolicy: "no-referrer" })
         : h("div", { class: "ld-art ph", "aria-hidden": "true" }, icon(IC.music));
       dockBox.hidden = false;
       dockBox.replaceChildren(h("div", { class: "ld-in" },
@@ -1809,7 +1817,7 @@
         var li = h("li", { class: "q-item" },
           grip,
           h("span", { class: "pos", text: String(pos) }),
-          /^https:\/\//i.test(q.thumbnail || "") ? h("img", { class: "q-thumb", src: q.thumbnail, alt: "", width: 48, height: 48, loading: "lazy", referrerpolicy: "no-referrer" }) : h("span", { class: "q-thumb ph", "aria-hidden": "true" }, icon(IC.music, "ic")),
+          thumbOf(q) ? h("img", { class: "q-thumb", src: thumbOf(q), alt: "", width: 48, height: 48, loading: "lazy", referrerpolicy: "no-referrer" }) : h("span", { class: "q-thumb ph", "aria-hidden": "true" }, icon(IC.music, "ic")),
           h("div", { class: "info" },
             ok ? h("a", { href: q.url, target: "_blank", rel: "noopener noreferrer", text: q.title }) : h("span", { text: q.title }),
             h("small", { class: "q-sub", text: [q.uploader, q.duration ? fmt(q.duration) : ""].filter(Boolean).join(" · ") })),
