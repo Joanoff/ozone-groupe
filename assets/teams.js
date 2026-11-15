@@ -15,6 +15,44 @@
   var num = function (v) { return v == null ? "—" : fr.format(v); };
   var STATUS = { online: "En ligne", idle: "Absent", dnd: "Ne pas déranger", offline: "Hors ligne" };
 
+  var NS = "http://www.w3.org/2000/svg";
+  var maskId = 0;
+  // Pastilles de statut aux formes exactes de Discord : plein (en ligne), croissant (absent), barre (ne pas déranger), anneau (hors ligne).
+  function statusIcon(status) {
+    var svg = document.createElementNS(NS, "svg");
+    svg.setAttribute("viewBox", "0 0 10 10");
+    svg.setAttribute("aria-hidden", "true");
+    function shape(tag, attrs, parent) {
+      var n = document.createElementNS(NS, tag);
+      for (var k in attrs) n.setAttribute(k, attrs[k]);
+      (parent || svg).appendChild(n);
+      return n;
+    }
+    if (status === "online") {
+      shape("circle", { cx: 5, cy: 5, r: 5, fill: "currentColor" });
+    } else if (status === "idle") {
+      var id = "tm-moon-" + (++maskId);
+      var defs = shape("defs", {});
+      var mask = shape("mask", { id: id, maskUnits: "userSpaceOnUse", x: 0, y: 0, width: 10, height: 10 }, defs);
+      shape("rect", { width: 10, height: 10, fill: "#fff" }, mask);
+      shape("circle", { cx: 2, cy: 2, r: 3, fill: "#000" }, mask);
+      shape("circle", { cx: 5, cy: 5, r: 5, fill: "currentColor", mask: "url(#" + id + ")" });
+    } else if (status === "dnd") {
+      shape("path", { fill: "currentColor", "fill-rule": "evenodd",
+        d: "M5 0a5 5 0 1 0 0 10A5 5 0 0 0 5 0zM2.6 3.9h4.8a1.1 1.1 0 0 1 0 2.2H2.6a1.1 1.1 0 0 1 0-2.2z" });
+    } else {
+      shape("path", { fill: "currentColor", "fill-rule": "evenodd",
+        d: "M5 0a5 5 0 1 0 0 10A5 5 0 0 0 5 0zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5z" });
+    }
+    return svg;
+  }
+  function dotEl(status) {
+    var dot = el("i", "tm-dot is-" + status);
+    dot.setAttribute("aria-hidden", "true");
+    dot.appendChild(statusIcon(status));
+    return dot;
+  }
+
   function avatar(m) {
     var wrap = el("span", "tm-av");
     var initial = el("span", "tm-ini", (m.name || "?").trim().charAt(0).toUpperCase());
@@ -28,9 +66,7 @@
       wrap.appendChild(img);
     }
     if (m.status && STATUS[m.status]) {
-      var dot = el("i", "tm-dot is-" + m.status);
-      dot.setAttribute("aria-hidden", "true");
-      wrap.appendChild(dot);
+      wrap.appendChild(dotEl(m.status));
     }
     return wrap;
   }
@@ -89,8 +125,7 @@
       var lg = el("ul", "tm-legend");
       ["online", "idle", "dnd", "offline"].forEach(function (k) {
         var li = el("li");
-        var dot = el("i", "tm-dot is-" + k); dot.setAttribute("aria-hidden", "true");
-        li.appendChild(dot); li.appendChild(document.createTextNode(STATUS[k]));
+        li.appendChild(dotEl(k)); li.appendChild(document.createTextNode(STATUS[k]));
         lg.appendChild(li);
       });
       sec.appendChild(lg);
